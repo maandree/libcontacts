@@ -18,6 +18,38 @@ gettime(const char *data)
 	return ret;
 }
 
+static unsigned int
+getposuint(const char *data)
+{
+	unsigned int ret = 0;
+	if (*data > '1' || '9' > *data)
+		return 0;
+	for (; isdigit(*data); data++) {
+		if (ret > (UINT_MAX - (*data & 15)) / 10)
+			return 0;
+		ret = ret * 10 + (*data & 15);
+	}
+	if (*data)
+		return 0;
+	return ret;
+}
+
+static unsigned char
+getposuchar(const char *data)
+{
+	unsigned char ret = 0;
+	if (*data > '1' || '9' > *data)
+		return 0;
+	for (; isdigit(*data); data++) {
+		if (ret > (UCHAR_MAX - (*data & 15)) / 10)
+			return 0;
+		ret = ret * 10 + (*data & 15);
+	}
+	if (*data)
+		return 0;
+	return ret;
+}
+
 static char *
 getstr(char *data)
 {
@@ -120,49 +152,6 @@ bad:
 	return -1;
 }
 
-static int
-parse_birth(char *s, struct libcontacts_birthday *birth)
-{
-	birth->year = 0;
-	birth->month = 0;
-	birth->day = 0;
-
-	if (isdigit(s[0]) && isdigit(s[1]) && isdigit(s[2]) && isdigit(s[3])) {
-		birth->year  = (s[0] & 15) * 1000;
-		birth->year += (s[1] & 15) *  100;
-		birth->year += (s[2] & 15) *   10;
-		birth->year += (s[3] & 15) *    1;
-		if (s[4] == '-')
-			s = &s[5];
-		else if (s[4])
-			goto bad;
-		else
-			return 0;
-	}
-
-	if (isdigit(s[0]) && isdigit(s[1])) {
-		birth->month  = (s[0] & 15) * 10;
-		birth->month += (s[1] & 15) *  1;
-		if (s[2] == '-')
-			s = &s[3];
-		else if (s[2])
-			goto bad;
-		else
-			return 0;
-	}
-
-	if (isdigit(s[0]) && isdigit(s[1])) {
-		birth->day  = (s[0] & 15) * 10;
-		birth->day += (s[1] & 15) *  1;
-		if (!s[2])
-			return 0;
-	}
-
-bad:
-	errno = EINVAL;
-	return -1;
-}
-
 
 int
 libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
@@ -188,6 +177,8 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 	time_t t;
 	void *temp;
 	int state = 0;
+	unsigned int u;
+	unsigned char uc;
 
 	memset(contact, 0, sizeof(*contact));
 
@@ -210,6 +201,10 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 
 			} else if (TEST(p, "LNAME") && !contact->last_name) {
 				if (!(contact->last_name = strdup(getstr(p))))
+					goto fail;
+
+			} else if (TEST(p, "FLNAME") && !contact->full_name) {
+				if (!(contact->full_name = strdup(getstr(p))))
 					goto fail;
 
 			} else if (TEST(p, "NICK") && !contact->nickname) {
@@ -401,16 +396,26 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				}
 				break;
 
-			} else if (TEST(p, "BIRTH") && !contact->birthday) {
+			} else if (!strcmp(p, "BIRTH:") && !contact->birthday) {
 				contact->birthday = malloc(sizeof(*contact->birthday));
 				if (!contact->birthday)
 					goto fail;
-				if (!parse_birth(getstr(p), contact->birthday)) {
-					free(contact->birthday);
-					contact->birthday = NULL;
-					if (addstr(&contact->unrecognised_data, getstr(p)))
+				state = 9;
+				break;
+			case 9:
+				if (TEST(unindent(p), "YEAR") && !contact->birthday->year && (u = getposuint(p))) {
+					contact->birthday->year = u;
+				} else if (TEST(unindent(p), "MONTH") && !contact->birthday->month && (uc = getposuchar(p))) {
+					contact->birthday->month = uc;
+				} else if (TEST(unindent(p), "DAY") && !contact->birthday->day && (uc = getposuchar(p))) {
+					contact->birthday->day = uc;
+				} else if (!strcmp(p, "EARLY")) {
+					contact->birthday->before_on_common = 1;
+				} else {
+					if (addstr(&contact->birthday->unrecognised_data, getstr(p)))
 						goto fail;
 				}
+				break;
 
 			} else if (!strcmp(p, "ICE")) {
 				contact->in_case_of_emergency = 1;

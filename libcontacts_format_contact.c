@@ -32,6 +32,9 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 	if (contact->last_name)
 		fprintf(fp, "LNAME %s\n", contact->last_name);
 
+	if (contact->full_name)
+		fprintf(fp, "FLNAME %s\n", contact->full_name);
+
 	if (contact->nickname)
 		fprintf(fp, "NICK %s\n", contact->nickname);
 
@@ -183,18 +186,18 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 	}
 
 	if (contact->birthday) {
-		if (contact->birthday->year && contact->birthday->day) {
-			fprintf(fp, "BIRTH %04i-%02i-%02i\n",
-				contact->birthday->year, contact->birthday->month, contact->birthday->day);
-		} else if (contact->birthday->year && contact->birthday->month) {
-			fprintf(fp, "BIRTH %04i-%02i\n", contact->birthday->year, contact->birthday->month);
-		} else if (contact->birthday->year) {
-			fprintf(fp, "BIRTH %04i\n", contact->birthday->year);
-		} else if (contact->birthday->day) {
-			fprintf(fp, "BIRTH %02i-%02i\n", contact->birthday->month, contact->birthday->day);
-		} else if (contact->birthday->month) {
-			fprintf(fp, "BIRTH %02i\n", contact->birthday->month);
-		}
+		fprintf(fp, "BIRTH:\n");
+		if (contact->birthday->year)
+			fprintf(fp, "YEAR %u\n", contact->birthday->year);
+		if (contact->birthday->month)
+			fprintf(fp, "MONTH %u\n", (unsigned int)contact->birthday->month);
+		if (contact->birthday->day)
+			fprintf(fp, "DAY %u\n", (unsigned int)contact->birthday->day);
+		if (contact->birthday->before_on_common)
+			fprintf(fp, "EARLY\n");
+		if ((list = contact->birthday->unrecognised_data))
+			for (; *list; list++)
+				fprintf(fp, "\t%s\n", *list);
 	}
 
 	if (contact->in_case_of_emergency)

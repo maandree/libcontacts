@@ -9,6 +9,7 @@ libcontacts_contact_destroy(struct libcontacts_contact *this)
 	free(this->name);
 	free(this->first_name);
 	free(this->last_name);
+	free(this->full_name);
 	free(this->nickname);
 	DESTROY_ALL(this->photos, free);
 	DESTROY_ALL(this->groups, free);

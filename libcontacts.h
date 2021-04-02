@@ -123,9 +123,35 @@ struct libcontacts_chat {
  * Birthday of contact
  */
 struct libcontacts_birthday {
-	unsigned int year;   /* asis,        0 for unknown */
-	unsigned char month; /* january = 1, 0 for unknown */
-	unsigned char day;   /* asis,        0 for unknown */
+	unsigned int year;        /* asis,        0 for unknown */
+	unsigned char month;      /* january = 1, 0 for unknown */
+	unsigned char day;        /* asis,        0 for unknown */
+
+	/**
+	 * This is applicable only if the birthday
+	 * is on a leap day. One non-leap years, a
+	 * birthday that occurs on a leap day is
+	 * observed the day after the leap day had
+	 * it existed; but if this flag is set, the
+	 * person observes his birthday the day
+	 * before instead.
+	 * 
+	 * (Even if it is not true (as it wasn't in
+	 * the past), the leap day is treated as if at
+	 * the end of the month, for example a person
+	 * born 1970-02-27, would celebrate his birthday
+	 * on 1980-02-27, not on 1980-02-28; similarly,
+	 * person born 1980-02-27 would celebrate his
+	 * birthday on 1989-02-27, not on 1989-02-26.)
+	 * 
+	 * For example, if a person is born 2000-02-29,
+	 * his birthday is observed 2011-03-01, but if
+	 * this flag is set, he observes it on 2011-02-28
+	 * instead.
+	 */
+	unsigned char before_on_common;
+
+	char **unrecognised_data; /* Data not recognised by the library */
 };
 
 
@@ -158,6 +184,11 @@ struct libcontacts_contact {
 	 * The last name(s) of the contact, if any
 	 */
 	char *last_name;
+
+	/**
+	 * The full name of the contact
+	 */
+	char *full_name;
 
 	/**
 	 * Nick name of the contact, if any
