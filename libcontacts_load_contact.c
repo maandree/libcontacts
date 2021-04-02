@@ -30,6 +30,7 @@ libcontacts_load_contact(const char *id, struct libcontacts_contact *contact, co
 			if (!new)
 				goto fail;
 			n += 8 << 10;
+			data = new;
 		}
 		r = read(fd, &data[p], n - p);
 		if (r <= 0) {
@@ -41,7 +42,7 @@ libcontacts_load_contact(const char *id, struct libcontacts_contact *contact, co
 	}
 	data[p] = '\0';
 
-	if (memchr(data, 0, p)) {
+	if (memchr(data, '\0', p)) {
 		errno = 0;
 		goto fail;
 	}

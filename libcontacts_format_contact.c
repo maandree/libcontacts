@@ -191,7 +191,7 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 		} else if (contact->birthday->year) {
 			fprintf(fp, "BIRTH %04i\n", contact->birthday->year);
 		} else if (contact->birthday->day) {
-			fprintf(fp, "BIRTH %02i-%02\n", contact->birthday->month, contact->birthday->day);
+			fprintf(fp, "BIRTH %02i-%02i\n", contact->birthday->month, contact->birthday->day);
 		} else if (contact->birthday->month) {
 			fprintf(fp, "BIRTH %02i\n", contact->birthday->month);
 		}
