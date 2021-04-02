@@ -20,6 +20,16 @@ libcontacts_list_contacts(char ***idsp, const struct passwd *user)
 
 	dir = opendir(dirnam);
 	if (!dir) {
+		if (errno == ENOENT) {
+			errno = saved_errno;
+			new = malloc(sizeof(**idsp));
+			if (new) {
+				*idsp = new;
+				**idsp = NULL;
+				free(dirnam);
+				return 0;
+			}
+		}
 		free(dirnam);
 		return -1;
 	}
