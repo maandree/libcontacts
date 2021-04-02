@@ -34,9 +34,9 @@ struct libcontacts_block {
 	 * The service the block is applied to,
 	 * must be begin with a dot, except if
 	 * it is:
-	 * -  ".call"    Telephone calls
-	 * -  ".sms"     SMS, MMS, and similar
-	 * -  ".global"  Block everywhere (least priorities)
+	 * - ".call"    Telephone calls
+	 * - ".sms"     SMS, MMS, and similar
+	 * - ".global"  Block everywhere (least prioritised)
 	 */
 	char *service;
 	int explicit;                             /* Whether to make an explicit block if possible */
