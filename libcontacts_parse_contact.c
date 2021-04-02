@@ -2,6 +2,22 @@
 #include "common.h"
 
 
+static time_t
+gettime(const char *data)
+{
+	time_t ret = 0;
+	if (*data > '1' || '9' > *data)
+		return 0;
+	for (; isdigit(*data); data++) {
+		if (ret > (TIME_MAX - (*data & 15)) / 10)
+			return 0;
+		ret = ret * 10 + (*data & 15);
+	}
+	if (*data)
+		return 0;
+	return ret;
+}
+
 static char *
 getstr(char *data)
 {
@@ -169,6 +185,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 
 	char *p, *q;
 	size_t i;
+	time_t t;
 	void *temp;
 	int state = 0;
 
@@ -354,6 +371,32 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 						goto fail;
 				} else {
 					if (addstr(&contact->chats[i]->unrecognised_data, getstr(p)))
+						goto fail;
+				}
+				break;
+
+			} else if (!strcmp(p, "BLOCK:")) {
+				ADD(contact->blocks);
+				state = 8;
+				break;
+			case 8:
+				if (TEST(unindent(p), "SRV") && !contact->blocks[i]->service) {
+					if (!(contact->blocks[i]->service = strdup(getstr(p))))
+						goto fail;
+				} else if (!strcmp(p, "OFF") && !contact->blocks[i]->shadow_block) {
+					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_OFF;
+				} else if (!strcmp(p, "BUSY") && !contact->blocks[i]->shadow_block) {
+					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_BUSY;
+				} else if (!strcmp(p, "IGNORE") && !contact->blocks[i]->shadow_block) {
+					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_IGNORE;
+				} else if (!strcmp(p, "EXPLICIT")) {
+					contact->blocks[i]->explicit = 1;
+				} else if (TEST(unindent(p), "ASK") && !contact->blocks[i]->soft_unblock && (t = gettime(p))) {
+					contact->blocks[i]->soft_unblock = t;
+				} else if (TEST(unindent(p), "REMOVE") && !contact->blocks[i]->hard_unblock && (t = gettime(p))) {
+					contact->blocks[i]->hard_unblock = t;
+				} else {
+					if (addstr(&contact->organisations[i]->unrecognised_data, getstr(p)))
 						goto fail;
 				}
 				break;

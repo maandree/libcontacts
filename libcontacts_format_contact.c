@@ -9,6 +9,7 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 	size_t siz = 0;
 	char **list, *p, *q;
 	const char *suffix;
+	struct libcontacts_block **blocks, *block;
 	struct libcontacts_organisation **organisations, *organisation;
 	struct libcontacts_email **emails, *email;
 	struct libcontacts_pgpkey **pgpkeys, *pgpkey;
@@ -51,11 +52,34 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 		}
 	}
 
+	if ((blocks = contact->blocks)) {
+		for (; (block = *blocks); blocks++) {
+			fprintf(fp, "BLOCK:\n");
+			if (block->service)
+				fprintf(fp, "\tSRV %s\n", block->service);
+			if (block->explicit)
+				fprintf(fp, "\tEXPLICIT\n");
+			if (block->soft_unblock > 0)
+				fprintf(fp, "\tASK %ji\n", block->soft_unblock);
+			if (block->hard_unblock > 0)
+				fprintf(fp, "\tREMOVE %ji\n", block->hard_unblock);
+			if (block->shadow_block == LIBCONTACTS_BLOCK_OFF)
+				fprintf(fp, "\tOFF\n");
+			else if (block->shadow_block == LIBCONTACTS_BLOCK_BUSY)
+				fprintf(fp, "\tBUSY\n");
+			else if (block->shadow_block == LIBCONTACTS_BLOCK_IGNORE)
+				fprintf(fp, "\tIGNORE\n");
+			if ((list = block->unrecognised_data))
+				for (; *list; list++)
+					fprintf(fp, "\t%s\n", *list);
+		}
+	}
+
 	if ((organisations = contact->organisations)) {
 		for (; (organisation = *organisations); organisations++) {
 			fprintf(fp, "ORG:\n");
 			if (organisation->organisation)
-				fprintf(fp, "\tORG %s\n", *organisation->organisation);
+				fprintf(fp, "\tORG %s\n", organisation->organisation);
 			if (organisation->title)
 				fprintf(fp, "\tTITLE %s\n", organisation->title);
 			if ((list = organisation->unrecognised_data))

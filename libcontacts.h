@@ -17,6 +17,36 @@ enum libcontacts_gender {
 };
 
 /**
+ * Block type for contact
+ */
+enum libcontacts_block_type {
+	LIBCONTACTS_SILENT,      /* The contact is blocked blocked, the phone shall not call its owner's attention */
+	LIBCONTACTS_BLOCK_OFF,   /* The contact is blocked, phone shall appear as turned off */
+	LIBCONTACTS_BLOCK_BUSY,  /* The contact is blocked, phone shall appear as turned busy */
+	LIBCONTACTS_BLOCK_IGNORE /* The contact is blocked, phone shall appear as on but with no one answering */
+};
+
+/**
+ * Block for contact
+ */
+struct libcontacts_block {
+	/**
+	 * The service the block is applied to,
+	 * must be begin with a dot, except if
+	 * it is:
+	 * -  ".call"    Telephone calls
+	 * -  ".sms"     SMS, MMS, and similar
+	 * -  ".global"  Block everywhere (least priorities)
+	 */
+	char *service;
+	int explicit;                             /* Whether to make an explicit block if possible */
+	enum libcontacts_block_type shadow_block; /* How block shall appear unless explicit */
+	time_t soft_unblock;                      /* When (positive) to ask whether to unblock, 0 if never */
+	time_t hard_unblock;                      /* When (positive) to unblock, 0 if never */
+	char **unrecognised_data;                 /* Data not recognised by the library */
+};
+
+/**
  * Organisation information for contact
  */
 struct libcontacts_organisation {
@@ -84,7 +114,7 @@ struct libcontacts_site {
  */
 struct libcontacts_chat {
 	char *context;            /* Work account (which job?)? Personal account? … */
-	char *service;            /* What service is the account */
+	char *service;            /* What service is the account, must not begin with a dot */
 	char *address;            /* What is the name/address/number of the account */
 	char **unrecognised_data; /* Data not recognised by the library */
 };
@@ -107,8 +137,8 @@ struct libcontacts_contact {
 	 * The ID of the contact, used to select filename
 	 * 
 	 * Must not begin with a dot, except if it is:
-	 *   ".me"       - The user himself.
-	 *   ".nobody"   - Unused data, such as created groups without any members.
+	 * - ".me"       The user himself.
+	 * - ".nobody"   Unused data, such as created groups without any members.
 	 * Additionally, it must not end with ~ or contain an /,
 	 * and it should be short enough for a filename
 	 */
@@ -159,6 +189,11 @@ struct libcontacts_contact {
 	 * Personal notes about the contact
 	 */
 	char *notes;
+
+	/**
+	 * Block information for contact
+	 */
+	struct libcontacts_block **blocks;
 
 	/**
 	 * Organisation information for contact
@@ -234,6 +269,7 @@ char *libcontacts_get_path(const char *, const struct passwd *);
 int libcontacts_parse_contact(char *, struct libcontacts_contact *); /* does not load .id, not stored in file, but is the filename */
 int libcontacts_format_contact(const struct libcontacts_contact *, char **);
 
+void libcontacts_block_destroy(struct libcontacts_block *);
 void libcontacts_organisation_destroy(struct libcontacts_organisation *);
 void libcontacts_email_destroy(struct libcontacts_email *);
 void libcontacts_pgpkey_destroy(struct libcontacts_pgpkey *);

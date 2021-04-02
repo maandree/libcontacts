@@ -12,6 +12,9 @@
 #include <unistd.h>
 
 
+#define TIME_MAX ((time_t)((1ULL << (8 * sizeof(time_t) - 1)) - 1ULL))
+
+
 #define DESTROY_ALL(LIST, FUNC)\
 	do {\
 		void *destroy_all_temp__;\

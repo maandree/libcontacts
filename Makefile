@@ -7,6 +7,7 @@ include $(CONFIGFILE)
 OBJ =\
 	libcontacts_address_destroy.o\
 	libcontacts_birthday_destroy.o\
+	libcontacts_block_destroy.o\
 	libcontacts_chat_destroy.o\
 	libcontacts_contact_destroy.o\
 	libcontacts_email_destroy.o\

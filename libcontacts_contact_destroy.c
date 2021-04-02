@@ -13,6 +13,7 @@ libcontacts_contact_destroy(struct libcontacts_contact *this)
 	DESTROY_ALL(this->photos, free);
 	DESTROY_ALL(this->groups, free);
 	free(this->notes);
+	DESTROY_ALL(this->blocks,        libcontacts_block_destroy);
 	DESTROY_ALL(this->organisations, libcontacts_organisation_destroy);
 	DESTROY_ALL(this->emails,        libcontacts_email_destroy);
 	DESTROY_ALL(this->pgpkeys,       libcontacts_pgpkey_destroy);
