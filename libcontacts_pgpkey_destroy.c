@@ -7,5 +7,5 @@ libcontacts_pgpkey_destroy(struct libcontacts_pgpkey *this)
 {
 	free(this->context);
 	free(this->id);
-	DESTROY_ALL(this->unrecognised_data, free);
+	DESTROY_ALL_STRINGS(this->unrecognised_data);
 }

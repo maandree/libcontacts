@@ -11,5 +11,5 @@ libcontacts_address_destroy(struct libcontacts_address *this)
 	free(this->address);
 	free(this->postcode);
 	free(this->city);
-	DESTROY_ALL(this->unrecognised_data, free);
+	DESTROY_ALL_STRINGS(this->unrecognised_data);
 }

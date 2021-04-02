@@ -6,5 +6,5 @@ void
 libcontacts_block_destroy(struct libcontacts_block *this)
 {
 	free(this->service);
-	DESTROY_ALL(this->unrecognised_data, free);
+	DESTROY_ALL_STRINGS(this->unrecognised_data);
 }

@@ -17,7 +17,7 @@ libcontacts_load_contacts(struct libcontacts_contact ***contactsp, const struct 
 		return -1;
 
 	for (n = 0; ids[n]; n++);
-	*contactsp = calloc(n, sizeof(**contactsp));
+	*contactsp = calloc(n + 1, sizeof(**contactsp));
 	if (!*contactsp)
 		goto fail;
 

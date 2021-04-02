@@ -8,5 +8,5 @@ libcontacts_chat_destroy(struct libcontacts_chat *this)
 	free(this->context);
 	free(this->service);
 	free(this->address);
-	DESTROY_ALL(this->unrecognised_data, free);
+	DESTROY_ALL_STRINGS(this->unrecognised_data);
 }

@@ -69,24 +69,35 @@ addstr(char ***listp, const char *new)
 {
 	size_t i;
 	void *temp, *add;
+	int error;
 	add = strdup(new);
 	if (!add)
 		return -1;
 	if (!*listp) {
 		*listp = calloc(2, sizeof(char *));
-		**listp = add;
+		if (!*listp)
+			goto fail_errno;
+		(*listp)[0] = add;
 	} else {
 		for (i = 0; (*listp)[i]; i++);
-		temp = realloc(*listp, (i + 2) * sizeof(char *));
-		if (!temp) {
-			free(add);
-			return -1;
+		if (i > SIZE_MAX / sizeof(char *) + 2) {
+			error = ENOMEM;
+			goto fail;
 		}
+		temp = realloc(*listp, (i + 2) * sizeof(char *));
+		if (!temp)
+			goto fail_errno;
 		*listp = temp;
 		(*listp)[i + 0] = add;
 		(*listp)[i + 1] = NULL;
 	}
 	return 0;
+fail_errno:
+	error = errno;
+fail:
+	free(add);
+	errno = error;
+	return -1;
 }
 
 static int
@@ -157,12 +168,18 @@ int
 libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 {
 #define TEST(S, L)\
-	(!strncmp((S), L, sizeof(L) - 1) &&\
-	 (S[sizeof(L)] == ' ' || S[sizeof(L)] == '\t'))
+	(!strncmp((test_tmp = (S)), L, sizeof(L) - 1) &&\
+	 (test_tmp[sizeof(L) - 1] == ' ' || test_tmp[sizeof(L) - 1] == '\t'))
 
 #define ADD(LIST)\
 	do {\
-		for (i = 0; (LIST) && (LIST)[i]; i++);\
+		i = 0;\
+		if (LIST)\
+			for (; (LIST)[i]; i++);\
+		if (i > SIZE_MAX / sizeof(*(LIST)) - 2) {\
+			errno = ENOMEM;\
+			goto fail;\
+		}\
 		temp = realloc((LIST), (i + 2) * sizeof(*(LIST)));\
 		if (!temp)\
 			goto fail;\
@@ -172,7 +189,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 			goto fail;\
 	} while (0)
 
-	char *p, *q;
+	char *p, *q, *test_tmp;
 	size_t i;
 	time_t t;
 	void *temp;
@@ -235,7 +252,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->organisations[i]->title = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->organisations[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->organisations[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -252,7 +269,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->emails[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->emails[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->emails[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -269,7 +286,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->pgpkeys[i]->id = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->pgpkeys[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->pgpkeys[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -290,7 +307,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				} else if (!strcmp(unindent(p), "FAX")) {
 					contact->numbers[i]->is_facsimile = 1;
 				} else {
-					if (addstr(&contact->numbers[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->numbers[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -324,11 +341,11 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					                &contact->addresses[i]->longitude)) {
 						contact->addresses[i]->have_coordinates = 1;
 					} else {
-						if (addstr(&contact->addresses[i]->unrecognised_data, getstr(p)))
+						if (addstr(&contact->addresses[i]->unrecognised_data, unindent(p)))
 							goto fail;
 					}
 				} else {
-					if (addstr(&contact->addresses[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->addresses[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -345,7 +362,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->sites[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->sites[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->sites[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -365,7 +382,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->chats[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->chats[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->chats[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -391,7 +408,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				} else if (TEST(unindent(p), "REMOVE") && !contact->blocks[i]->hard_unblock && (t = gettime(p))) {
 					contact->blocks[i]->hard_unblock = t;
 				} else {
-					if (addstr(&contact->organisations[i]->unrecognised_data, getstr(p)))
+					if (addstr(&contact->organisations[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -412,7 +429,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				} else if (!strcmp(p, "EARLY")) {
 					contact->birthday->before_on_common = 1;
 				} else {
-					if (addstr(&contact->birthday->unrecognised_data, getstr(p)))
+					if (addstr(&contact->birthday->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
@@ -430,7 +447,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				contact->gender = LIBCONTACTS_FEMALE;
 
 			} else {
-				if (addstr(&contact->unrecognised_data, getstr(p)))
+				if (addstr(&contact->unrecognised_data, p))
 					goto fail;
 			}
 		}
