@@ -70,7 +70,13 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 			goto fail;
 	}
 
-	close(fd), fd = -1;
+	if (fsync(fd))
+		goto fail;
+	if (close(fd)) {
+		fd = -1;
+		goto fail;
+	}
+	fd = -1;
 
 	if (rename(tmppath, path))
 		goto fail;
