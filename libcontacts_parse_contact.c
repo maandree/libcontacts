@@ -6,7 +6,7 @@ static time_t
 gettime(const char *data)
 {
 	time_t ret = 0;
-	if (*data > '1' || '9' > *data)
+	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
 		if (ret > (TIME_MAX - (*data & 15)) / 10)
@@ -22,7 +22,7 @@ static unsigned int
 getposuint(const char *data)
 {
 	unsigned int ret = 0;
-	if (*data > '1' || '9' > *data)
+	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
 		if (ret > (UINT_MAX - (*data & 15)) / 10)
@@ -38,12 +38,12 @@ static unsigned char
 getposuchar(const char *data)
 {
 	unsigned char ret = 0;
-	if (*data > '1' || '9' > *data)
+	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
 		if (ret > (UCHAR_MAX - (*data & 15)) / 10)
 			return 0;
-		ret = ret * 10 + (*data & 15);
+		ret = (unsigned char)(ret * 10 + (*data & 15));
 	}
 	if (*data)
 		return 0;

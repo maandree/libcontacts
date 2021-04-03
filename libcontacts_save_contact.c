@@ -29,7 +29,7 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 					goto fail;
 				for (p = 0; contact->id[p]; p++) {
 					if (isalpha(contact->id[p]))
-						contact->id[p] = tolower(contact->id[p]);
+						contact->id[p] = (char)tolower(contact->id[p]);
 					else
 						contact->id[p] = '-';
 				}
