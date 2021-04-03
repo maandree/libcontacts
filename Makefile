@@ -20,6 +20,7 @@ OBJ =\
 	libcontacts_organisation_destroy.o\
 	libcontacts_parse_contact.o\
 	libcontacts_pgpkey_destroy.o\
+	libcontacts_same_number.o\
 	libcontacts_save_contact.o\
 	libcontacts_site_destroy.o
 
