@@ -2,6 +2,7 @@
 #include "common.h"
 
 
+ATTRIBUTE_PURE
 static time_t
 gettime(const char *data)
 {
@@ -18,6 +19,7 @@ gettime(const char *data)
 	return ret;
 }
 
+ATTRIBUTE_PURE
 static unsigned int
 getposuint(const char *data)
 {
@@ -34,6 +36,7 @@ getposuint(const char *data)
 	return ret;
 }
 
+ATTRIBUTE_PURE
 static unsigned char
 getposuchar(const char *data)
 {
@@ -50,6 +53,7 @@ getposuchar(const char *data)
 	return ret;
 }
 
+ATTRIBUTE_PURE
 static char *
 getstr(char *data)
 {
@@ -57,6 +61,7 @@ getstr(char *data)
 	return &strchr(data, ' ')[1];
 }
 
+ATTRIBUTE_PURE
 static char *
 unindent(char *data)
 {

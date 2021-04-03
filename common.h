@@ -14,6 +14,13 @@
 #include <unistd.h>
 
 
+#if defined(__GNUC__) || defined(__clang__)
+# define ATTRIBUTE_PURE __attribute__((__pure__))
+#else
+# define ATTRIBUTE_PURE
+#endif
+
+
 #define TIME_MAX ((time_t)((1ULL << (8 * sizeof(time_t) - 1)) - 1ULL))
 
 
