@@ -51,7 +51,7 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 	tmppath = alloca(strlen(path) + sizeof("~"));
 	stpcpy(stpcpy(tmppath, path), "~");
 
-	fd = open(tmppath, oflags, 0644);
+	fd = open(tmppath, oflags, 0666);
 	if (fd < 0) {
 		if ((oflags & O_EXCL) && errno == EEXIST) {
 			if (!num++) {
