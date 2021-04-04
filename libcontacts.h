@@ -89,11 +89,11 @@ struct libcontacts_number {
  */
 struct libcontacts_address {
 	char *context;            /* Work address (which job)? Home? Summer cabin? … */
-	char *country;            /* Which country? */
 	char *care_of;            /* Care of address, if any */
 	char *address;            /* Address, all lines in one */
 	char *postcode;           /* Post code */
 	char *city;               /* Which city is the post code tied to? */
+	char *country;            /* Which country? */
 	int have_coordinates;     /* Are `.latitude` and `.longitude` defined? */
 	double latitude;          /* Latitudal GPS coordinate */
 	double longitude;         /* Longitudal GPS coordinate */

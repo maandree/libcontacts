@@ -137,7 +137,7 @@ parse_coord(char *s, double *lat, double *lon)
 	errno = 0;
 
 	withsign = (s[0] == '-' || s[0] == '+');
-	if (s[withsign] != '.' || isdigit(s[withsign]))
+	if (s[withsign] != '.' && !isdigit(s[withsign]))
 		goto bad;
 	*lat = strtod(s, &s);
 	if (errno)
@@ -150,9 +150,10 @@ parse_coord(char *s, double *lat, double *lon)
 
 	if (s[0] != ' ')
 		goto bad;
+	s = &s[1];
 
 	withsign = (s[0] == '-' || s[0] == '+');
-	if (s[withsign] != '.' || isdigit(s[withsign]))
+	if (s[withsign] != '.' && !isdigit(s[withsign]))
 		goto bad;
 	*lon = strtod(s, &s);
 	if (errno)
@@ -347,9 +348,9 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					if (!(contact->addresses[i]->city = strdup(getstr(p))))
 						goto fail;
 				} else if (TEST(unindent(p), "COORD") && !contact->addresses[i]->have_coordinates) {
-					if (parse_coord(getstr(p),
-					                &contact->addresses[i]->latitude,
-					                &contact->addresses[i]->longitude)) {
+					if (!parse_coord(getstr(p),
+					                 &contact->addresses[i]->latitude,
+					                 &contact->addresses[i]->longitude)) {
 						contact->addresses[i]->have_coordinates = 1;
 					} else {
 						if (addstr(&contact->addresses[i]->unrecognised_data, unindent(p)))
