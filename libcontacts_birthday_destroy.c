@@ -5,5 +5,5 @@
 void
 libcontacts_birthday_destroy(struct libcontacts_birthday *this)
 {
-	(void) this;
+	DESTROY_ALL_STRINGS(this->unrecognised_data);
 }

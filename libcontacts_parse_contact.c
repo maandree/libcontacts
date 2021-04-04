@@ -7,6 +7,8 @@ static time_t
 gettime(const char *data)
 {
 	time_t ret = 0;
+	while (*data == ' ' || *data == '\t') data++;
+	data = &strchr(data, ' ')[1];
 	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
@@ -24,6 +26,8 @@ static unsigned int
 getposuint(const char *data)
 {
 	unsigned int ret = 0;
+	while (*data == ' ' || *data == '\t') data++;
+	data = &strchr(data, ' ')[1];
 	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
@@ -41,6 +45,8 @@ static unsigned char
 getposuchar(const char *data)
 {
 	unsigned char ret = 0;
+	while (*data == ' ' || *data == '\t') data++;
+	data = &strchr(data, ' ')[1];
 	if ('1' > *data || *data > '9')
 		return 0;
 	for (; isdigit(*data); data++) {
@@ -419,7 +425,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				break;
 
 			} else if (!strcmp(p, "BIRTH:") && !contact->birthday) {
-				contact->birthday = malloc(sizeof(*contact->birthday));
+				contact->birthday = calloc(1, sizeof(*contact->birthday));
 				if (!contact->birthday)
 					goto fail;
 				state = 9;
