@@ -201,7 +201,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 	} while (0)
 
 	char *p, *q, *test_tmp;
-	size_t i;
+	size_t i = 0; /* initialised to make compiler happy */
 	time_t t;
 	void *temp;
 	int state = 0;
