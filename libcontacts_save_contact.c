@@ -51,17 +51,24 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 	tmppath = alloca(strlen(path) + sizeof("~"));
 	stpcpy(stpcpy(tmppath, path), "~");
 
-	fd = open(tmppath, oflags, 0666);
-	if (fd < 0) {
-		if ((oflags & O_EXCL) && errno == EEXIST) {
+	if (oflags & O_EXCL) {
+		fd = open(path, oflags, 0666);
+		if (fd < 0) {
+			if (errno != EEXIST)
+				goto fail;
 			if (!num++) {
 				basenam = contact->id;
 				contact->id = NULL;
 			}
 			goto generate_id;
 		}
-		goto fail;
+		close(fd);
+		oflags ^= O_EXCL ^ O_TRUNC;
 	}
+
+	fd = open(tmppath, oflags, 0666);
+	if (fd < 0)
+		goto fail;
 
 	n = strlen(data);
 	for (p = 0; p < n; p += (size_t)r) {
