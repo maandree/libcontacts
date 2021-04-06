@@ -2,5 +2,4 @@ Add dynamically linked library
 Add man pages
 Add readme
 Add tests
-Add cache (only number->ids, id->photos, number->photos)
 Add handle different calendars
