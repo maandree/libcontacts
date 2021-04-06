@@ -2,12 +2,38 @@
 #include "common.h"
 
 
+static int
+makedirs(char *path)
+{
+	char *p, *last;
+
+	last = strrchr(path, '/');
+	if (!last)
+		return 0;
+	*last = '\0';
+
+	for (p = path; *p == '/'; p++);
+
+	while (*p) {
+		for (; *p && *p != '/'; p++);
+		*p = '\0';
+		if (mkdir(path, 0777) && errno != EEXIST) {
+			*last = *p = '/';
+			return -1;
+		}
+		for (*p++ = '/'; *p == '/'; p++);
+	}
+
+	*last = '/';
+	return 0;
+}
+
 int
 libcontacts_save_contact(struct libcontacts_contact *contact, const struct passwd *user)
 {
 	char *data = NULL, *path = NULL, *tmppath;
 	int oflags = O_WRONLY | O_CREAT | O_TRUNC;
-	int fd = -1, saved_errno = errno;
+	int fd = -1, saved_errno = errno, dirs_created = 0;
 	ssize_t r;
 	size_t p, n, num = 0;
 	char *basenam = NULL;
@@ -52,8 +78,15 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 	stpcpy(stpcpy(tmppath, path), "~");
 
 	if (oflags & O_EXCL) {
+	open_excl_again:
 		fd = open(path, oflags, 0666);
 		if (fd < 0) {
+			if (errno == ENOENT && !dirs_created) {
+				if (makedirs(path))
+					goto fail;
+				dirs_created = 1;
+				goto open_excl_again;
+			}
 			if (errno != EEXIST)
 				goto fail;
 			if (!num++) {
@@ -64,11 +97,20 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 		}
 		close(fd);
 		oflags ^= O_EXCL ^ O_TRUNC;
+		dirs_created = 1;
 	}
 
+open_again:
 	fd = open(tmppath, oflags, 0666);
-	if (fd < 0)
+	if (fd < 0) {
+		if (errno == ENOENT && !dirs_created) {
+			if (makedirs(path))
+				goto fail;
+			dirs_created = 1;
+			goto open_again;
+		}
 		goto fail;
+	}
 
 	n = strlen(data);
 	for (p = 0; p < n; p += (size_t)r) {

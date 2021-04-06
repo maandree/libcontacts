@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "libcontacts.h"
 
+#include <sys/stat.h>
 #include <alloca.h>
 #include <ctype.h>
 #include <dirent.h>
