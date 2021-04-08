@@ -1,0 +1,7 @@
+NAME
+	libcontacts - A library for handling a simple, flexible contact list
+
+DESCRIPTION
+	libcontacts uses the ~/.config/contacts library to store in a simple,
+	human and machine readable text format that can be easily manipulated
+	and inspected with standard tools.
