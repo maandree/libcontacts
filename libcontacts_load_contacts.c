@@ -3,7 +3,7 @@
 
 
 int
-libcontacts_load_contacts(struct libcontacts_contact ***contactsp, const struct passwd *user)
+libcontacts_load_contacts(struct libcontacts_contact ***contactsp, const struct passwd *user, int with_me)
 {
 	int saved_errno = errno;
 	char **ids;
@@ -13,7 +13,7 @@ libcontacts_load_contacts(struct libcontacts_contact ***contactsp, const struct 
 
 	*contactsp = NULL;
 
-	if (libcontacts_list_contacts(&ids, user))
+	if (libcontacts_list_contacts(&ids, user, with_me))
 		return -1;
 
 	for (n = 0; ids[n]; n++);

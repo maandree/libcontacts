@@ -291,9 +291,9 @@ struct libcontacts_contact {
 
 
 void libcontacts_contact_destroy(struct libcontacts_contact *);
-int libcontacts_list_contacts(char ***, const struct passwd *);
+int libcontacts_list_contacts(char ***, const struct passwd *, int);
 int libcontacts_load_contact(const char *, struct libcontacts_contact *, const struct passwd *); /* errno = 0 if malformatted */
-int libcontacts_load_contacts(struct libcontacts_contact ***, const struct passwd *);
+int libcontacts_load_contacts(struct libcontacts_contact ***, const struct passwd *, int);
 int libcontacts_save_contact(struct libcontacts_contact *, const struct passwd *);
 int libcontacts_same_number(const char *, const char *, const char *, const char *); /* might be removed in the future */
 

@@ -3,7 +3,7 @@
 
 
 int
-libcontacts_list_contacts(char ***idsp, const struct passwd *user)
+libcontacts_list_contacts(char ***idsp, const struct passwd *user, int with_me)
 {
 	char *dirnam;
 	DIR *dir;
@@ -36,10 +36,12 @@ libcontacts_list_contacts(char ***idsp, const struct passwd *user)
 
 	goto start;
 	while ((f = readdir(dir))) {
-		if (strchr(f->d_name, '.'))
+		if (f->d_name[0] == '.') {
+			if (!with_me || strcmp(f->d_name, ".me"))
+				continue;
+		} else if (!f->d_name[0] || strchr(f->d_name, '\0')[-1] == '~') {
 			continue;
-		if (!f->d_name[0] || strchr(f->d_name, '\0')[-1] == '~')
-			continue;
+		}
 		if (!((*idsp)[i++] = strdup(f->d_name)))
 			goto fail;
 	start:
