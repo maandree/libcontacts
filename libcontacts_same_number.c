@@ -27,18 +27,6 @@ canonicalise(const char *number, const char *country, char **post_cccp)
 
 	*post_cccp = NULL;
 
-	for (p = number, skip = 0; *p; p++) {
-		digit = digits[*p & 255];
-		if (digit) {
-			if (*digit == '(')
-				skip += 1;
-			else if (*digit == ')')
-				skip -= !!skip;
-			else
-				nlen += digit[1] ? 2 : 1;
-		}
-	}
-
 	for (p = country, skip = 0; *p; p++) {
 		digit = digits[*p & 255];
 		if (digit) {
@@ -46,12 +34,24 @@ canonicalise(const char *number, const char *country, char **post_cccp)
 				skip += 1;
 			else if (*digit == ')')
 				skip -= !!skip;
-			else
+			else if (!skip)
 				clen += digit[1] ? 2 : 1;
 		}
 	}
 
-	r = ret = malloc(nlen + clen + 3);
+	for (p = number, skip = 0; *p; p++) {
+		digit = digits[*p & 255];
+		if (digit) {
+			if (*digit == '(')
+				skip += 1;
+			else if (*digit == ')')
+				skip -= !!skip;
+			else if (!skip)
+				nlen += digit[1] ? 2 : 1;
+		}
+	}
+
+	r = ret = malloc(clen + nlen + 3);
 	if (!ret)
 		return NULL;
 
@@ -95,7 +95,7 @@ canonicalise(const char *number, const char *country, char **post_cccp)
 	}
 	*r = '\0';
 
-	if (r[clen] != '0') {
+	if (ret[clen] != '0') {
 		*post_cccp = NULL;
 		memmove(ret, &ret[clen], nlen + 1);
 	} else {
