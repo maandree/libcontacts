@@ -7,3 +7,5 @@
 *.lo
 *.dll
 *.dylib
+/test
+/.testdir

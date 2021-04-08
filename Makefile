@@ -43,8 +43,9 @@ HDR =\
 LOBJ = $(OBJ:.o=.lo)
 
 
-all: libcontacts.a libcontacts.$(LIBEXT)
+all: libcontacts.a libcontacts.$(LIBEXT) test
 $(OBJ): $($@:.o=.c) $(HDR)
+test.o: test.c $(HDR)
 
 libcontacts.a: $(OBJ)
 	-rm -f -- $@
@@ -59,6 +60,14 @@ libcontacts.$(LIBEXT): $(LOBJ)
 
 .c.lo:
 	$(CC) -fPIC -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+test: test.o libcontacts.a
+	$(CC) -o $@ test.o libcontacts.a $(LDFLAGS)
+
+check: test
+	@rm -rf -- .testdir
+	./test
+	@rm -rf -- .testdir
 
 install: libcontacts.a libcontacts.$(LIBEXT)
 	mkdir -p -- "$(DESTDIR)$(PREFIX)/lib"
@@ -77,9 +86,9 @@ uninstall:
 	-rm -f -- "$(DESTDIR)$(PREFIX)/include/libcontacts.h"
 
 clean:
-	-rm -f -- *.o *.a *.lo *.so *.dylib *.dll *.su
+	-rm -rf -- *.o *.a *.lo *.so *.dylib *.dll *.su test .testdir
 
 .SUFFIXES:
 .SUFFIXES: .c .o .lo
 
-.PHONY: all install uninstall clean
+.PHONY: all check install uninstall clean
