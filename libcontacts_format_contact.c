@@ -150,7 +150,7 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 			if (address->city)
 				fprintf(fp, "\tCITY %s\n", address->city);
 			if (address->have_coordinates)
-				fprintf(fp, "\tCOORD %.20lg %.20lg\n", address->latitude, address->longitude);
+				fprintf(fp, "\tCOORD %.16lg %.16lg\n", address->latitude, address->longitude);
 			if ((list = address->unrecognised_data))
 				for (; *list; list++)
 					fprintf(fp, "\t%s\n", *list);
