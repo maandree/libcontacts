@@ -438,7 +438,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 					contact->birthday->month = uc;
 				} else if (TEST(unindent(p), "DAY") && !contact->birthday->day && (uc = getposuchar(p))) {
 					contact->birthday->day = uc;
-				} else if (!strcmp(p, "EARLY")) {
+				} else if (!strcmp(unindent(p), "EARLY")) {
 					contact->birthday->before_on_common = 1;
 				} else {
 					if (addstr(&contact->birthday->unrecognised_data, unindent(p)))

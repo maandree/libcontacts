@@ -188,13 +188,13 @@ libcontacts_format_contact(const struct libcontacts_contact *contact, char **dat
 	if (contact->birthday) {
 		fprintf(fp, "BIRTH:\n");
 		if (contact->birthday->year)
-			fprintf(fp, "YEAR %u\n", contact->birthday->year);
+			fprintf(fp, "\tYEAR %u\n", contact->birthday->year);
 		if (contact->birthday->month)
-			fprintf(fp, "MONTH %u\n", (unsigned int)contact->birthday->month);
+			fprintf(fp, "\tMONTH %u\n", (unsigned int)contact->birthday->month);
 		if (contact->birthday->day)
-			fprintf(fp, "DAY %u\n", (unsigned int)contact->birthday->day);
+			fprintf(fp, "\tDAY %u\n", (unsigned int)contact->birthday->day);
 		if (contact->birthday->before_on_common)
-			fprintf(fp, "EARLY\n");
+			fprintf(fp, "\tEARLY\n");
 		if ((list = contact->birthday->unrecognised_data))
 			for (; *list; list++)
 				fprintf(fp, "\t%s\n", *list);
