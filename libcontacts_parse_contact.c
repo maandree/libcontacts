@@ -420,7 +420,7 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				} else if (TEST(unindent(p), "REMOVE") && !contact->blocks[i]->hard_unblock && (t = gettime(p))) {
 					contact->blocks[i]->hard_unblock = t;
 				} else {
-					if (addstr(&contact->organisations[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contact->blocks[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
