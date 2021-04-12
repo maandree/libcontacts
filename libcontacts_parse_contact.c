@@ -407,13 +407,13 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 				if (TEST(unindent(p), "SRV") && !contact->blocks[i]->service) {
 					if (!(contact->blocks[i]->service = strdup(getstr(p))))
 						goto fail;
-				} else if (!strcmp(p, "OFF") && !contact->blocks[i]->shadow_block) {
+				} else if (!strcmp(unindent(p), "OFF") && !contact->blocks[i]->shadow_block) {
 					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_OFF;
-				} else if (!strcmp(p, "BUSY") && !contact->blocks[i]->shadow_block) {
+				} else if (!strcmp(unindent(p), "BUSY") && !contact->blocks[i]->shadow_block) {
 					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_BUSY;
-				} else if (!strcmp(p, "IGNORE") && !contact->blocks[i]->shadow_block) {
+				} else if (!strcmp(unindent(p), "IGNORE") && !contact->blocks[i]->shadow_block) {
 					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_IGNORE;
-				} else if (!strcmp(p, "EXPLICIT")) {
+				} else if (!strcmp(unindent(p), "EXPLICIT")) {
 					contact->blocks[i]->explicit = 1;
 				} else if (TEST(unindent(p), "ASK") && !contact->blocks[i]->soft_unblock && (t = gettime(p))) {
 					contact->blocks[i]->soft_unblock = t;
