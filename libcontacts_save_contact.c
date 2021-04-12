@@ -31,7 +31,7 @@ makedirs(char *path)
 int
 libcontacts_save_contact(struct libcontacts_contact *contact, const struct passwd *user)
 {
-	char *data = NULL, *path = NULL, *tmppath;
+	char *data = NULL, *path = NULL, *tmppath = NULL;
 	int oflags = O_WRONLY | O_CREAT | O_TRUNC;
 	int fd = -1, saved_errno = errno, dirs_created = 0;
 	ssize_t r;
@@ -74,7 +74,7 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 	if (!path)
 		goto fail;
 
-	tmppath = alloca(strlen(path) + sizeof("~"));
+	tmppath = malloc(strlen(path) + sizeof("~"));
 	stpcpy(stpcpy(tmppath, path), "~");
 
 	if (oflags & O_EXCL) {
@@ -93,6 +93,8 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 				basenam = contact->id;
 				contact->id = NULL;
 			}
+			free(path);
+			free(tmppath);
 			goto generate_id;
 		}
 		close(fd);
@@ -132,6 +134,7 @@ open_again:
 
 	free(data);
 	free(path);
+	free(tmppath);
 	free(basenam);
 	errno = saved_errno;
 	return 0;
@@ -142,6 +145,7 @@ fail:
 		close(fd);
 	free(data);
 	free(path);
+	free(tmppath);
 	free(basenam);
 	errno = saved_errno;
 	return -1;
