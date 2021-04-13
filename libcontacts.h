@@ -7,6 +7,16 @@
 
 
 /**
+ * Block type for contact
+ */
+enum libcontacts_block_type {
+	LIBCONTACTS_SILENT,      /* The phone shall not call its owner's attention */
+	LIBCONTACTS_BLOCK_OFF,   /* The phone shall appear as turned off */
+	LIBCONTACTS_BLOCK_BUSY,  /* The phone shall appear as busy */
+	LIBCONTACTS_BLOCK_IGNORE /* The phone shall appear as on but with no one answering */
+};
+
+/**
  * Gender of contact
  */
 enum libcontacts_gender {
@@ -14,74 +24,6 @@ enum libcontacts_gender {
 	LIBCONTACTS_NOT_A_PERSON,
 	LIBCONTACTS_MALE,
 	LIBCONTACTS_FEMALE
-};
-
-/**
- * Block type for contact
- */
-enum libcontacts_block_type {
-	LIBCONTACTS_SILENT,      /* The contact is blocked blocked, the phone shall not call its owner's attention */
-	LIBCONTACTS_BLOCK_OFF,   /* The contact is blocked, phone shall appear as turned off */
-	LIBCONTACTS_BLOCK_BUSY,  /* The contact is blocked, phone shall appear as turned busy */
-	LIBCONTACTS_BLOCK_IGNORE /* The contact is blocked, phone shall appear as on but with no one answering */
-};
-
-/**
- * Block for contact
- */
-struct libcontacts_block {
-	/**
-	 * The service the block is applied to,
-	 * must be begin with a dot, except if
-	 * it is:
-	 * - ".call"    Telephone calls
-	 * - ".sms"     SMS, MMS, and similar
-	 * - ".global"  Block everywhere (least prioritised)
-	 */
-	char *service;
-	int explicit;                             /* Whether to make an explicit block if possible */
-	enum libcontacts_block_type shadow_block; /* How block shall appear unless explicit */
-	time_t soft_unblock;                      /* When (positive) to ask whether to unblock, 0 if never */
-	time_t hard_unblock;                      /* When (positive) to unblock, 0 if never */
-	char **unrecognised_data;                 /* Data not recognised by the library */
-};
-
-/**
- * Organisation information for contact
- */
-struct libcontacts_organisation {
-	char *organisation;       /* Orginisation the contact belongs to */
-	char *title;              /* The contact's title/role in the orginisation */
-	char **unrecognised_data; /* Data not recognised by the library */
-};
-
-/**
- * E-mail information for contact
- */
-struct libcontacts_email {
-	char *context;            /* Work e-mail (which job?)? Personal e-mail? … */
-	char *address;            /* E-mail address */
-	char **unrecognised_data; /* Data not recognised by the library */
-};
-
-/**
- * PGP-keys for contact
- */
-struct libcontacts_pgpkey {
-	char *context;            /* Work key (which job?)? Personal key? … */
-	char *id;                 /* The key's fingerprint */
-	char **unrecognised_data; /* Data not recognised by the library */
-};
-
-/**
- * Telephone number for contact
- */
-struct libcontacts_number {
-	char *context;            /* Work phone (which job?)? Personal phone (mobile?, which home?)? … */
-	char *number;             /* The telephone number */
-	int is_mobile;            /* Is this a mobile phone (does it receive SMS)? */
-	int is_facsimile;         /* Is this facsimile (fax) machine? */
-	char **unrecognised_data; /* Data not recognised by the library */
 };
 
 /**
@@ -95,27 +37,8 @@ struct libcontacts_address {
 	char *city;               /* Which city is the post code tied to? */
 	char *country;            /* Which country? */
 	int have_coordinates;     /* Are `.latitude` and `.longitude` defined? */
-	double latitude;          /* Latitudal GPS coordinate */
-	double longitude;         /* Longitudal GPS coordinate */
-	char **unrecognised_data; /* Data not recognised by the library */
-};
-
-/**
- * Site (e.g. web and gopher) for contact
- */
-struct libcontacts_site {
-	char *context;            /* Work site (which job?)? Personal site (what is it used for?)? … */
-	char *address;            /* Address to the site, including protocol */
-	char **unrecognised_data; /* Data not recognised by the library */
-};
-
-/**
- * Chat address for contact
- */
-struct libcontacts_chat {
-	char *context;            /* Work account (which job?)? Personal account? … */
-	char *service;            /* What service is the account, must not begin with a dot */
-	char *address;            /* What is the name/address/number of the account */
+	double latitude;          /* Latitudinal GPS coordinate */
+	double longitude;         /* Longitudinal GPS coordinate */
 	char **unrecognised_data; /* Data not recognised by the library */
 };
 
@@ -151,6 +74,83 @@ struct libcontacts_birthday {
 	 */
 	unsigned char before_on_common;
 
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * Block for contact
+ */
+struct libcontacts_block {
+	/**
+	 * The service the block is applied to,
+	 * must be begin with a dot, except if
+	 * it is:
+	 * - ".call"    Telephone calls
+	 * - ".sms"     SMS, MMS, and similar
+	 * - ".global"  Block everywhere (least prioritised)
+	 */
+	char *service;
+	int explicit;                             /* Whether to make an explicit block if possible */
+	enum libcontacts_block_type shadow_block; /* How block shall appear unless explicit */
+	time_t soft_unblock;                      /* When (positive) to ask whether to unblock, 0 if never */
+	time_t hard_unblock;                      /* When (positive) to unblock, 0 if never */
+	char **unrecognised_data;                 /* Data not recognised by the library */
+};
+
+/**
+ * Chat address for contact
+ */
+struct libcontacts_chat {
+	char *context;            /* Work account (which job?)? Personal account? … */
+	char *service;            /* What service is the account, must not begin with a dot */
+	char *address;            /* What is the name/address/number of the account */
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * E-mail information for contact
+ */
+struct libcontacts_email {
+	char *context;            /* Work e-mail (which job?)? Personal e-mail? … */
+	char *address;            /* E-mail address */
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * Telephone number for contact
+ */
+struct libcontacts_number {
+	char *context;            /* Work phone (which job?)? Personal phone (mobile?, which home?)? … */
+	char *number;             /* The telephone number */
+	int is_mobile;            /* Is this a mobile phone (does it receive SMS)? */
+	int is_facsimile;         /* Is this facsimile (fax) machine? */
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * Organisation information for contact
+ */
+struct libcontacts_organisation {
+	char *organisation;       /* Orginisation the contact belongs to */
+	char *title;              /* The contact's title/role in the orginisation */
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * PGP-keys for contact
+ */
+struct libcontacts_pgpkey {
+	char *context;            /* Work key (which job?)? Personal key? … */
+	char *id;                 /* The key's fingerprint */
+	char **unrecognised_data; /* Data not recognised by the library */
+};
+
+/**
+ * Site (e.g. web and gopher) for contact
+ */
+struct libcontacts_site {
+	char *context;            /* Work site (which job?)? Personal site (what is it used for?)? … */
+	char *address;            /* Address to the site, including protocol */
 	char **unrecognised_data; /* Data not recognised by the library */
 };
 
@@ -196,11 +196,11 @@ struct libcontacts_contact {
 	char *nickname;
 
 	/**
-	 * Pathname to photoes of the contact, use
+	 * Pathnames to photos of the contact, use
 	 * absolute paths or paths relative to the
 	 * user's home directory
 	 * 
-	 * Applications may desired which photo to
+	 * Applications may decide which photo to
 	 * use based on their size, but put the in
 	 * order of preference
 	 * 

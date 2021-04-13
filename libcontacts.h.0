@@ -1,0 +1,530 @@
+.TH LIBCONTACTS.H 0 LIBCONTACTS
+.SH NAME
+libcontacts.h \- Simple, flexible contact list library header
+
+.SH SYNOPSIS
+#include <libcontacts.h>
+
+.SH DESCRIPTION
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_contact
+with the following fields:
+.RS
+.TP
+.BI "char *" id
+The ID of the contact, used to select filename.
+This must not begin with a dot
+.RB ( . ),
+(unless it is reserved) end with a tilde
+.RB ( ~ ),
+or contain a slash
+.RB ( / ),
+and it is recommended that it only contains
+lower case ASCII letters, ASCII digits, and ASCII hyphen
+.RB ( - ).
+Reserved values are:
+.RS
+.TP
+.B .me
+The user himself.
+.TP
+.B .nobody
+Unused data, such as created groups without any members.
+.RE
+.TP
+.BI "char *" name
+The name of the contact as it should be displayed.
+.TP
+.BI "char *" first_name
+The contact's given name (even if it is pronounced
+after the family name).
+.TP
+.BI "char *" last_name
+The contact's family name (even if it is pronounced
+after the given name), if any.
+.TP
+.BI "char *" full_name
+The full name of the contact. There is no prescribed
+format, and there never will be. Application are
+advised not to presume any format.
+.TP
+.BI "char *" nickname.
+The contact's nickname (once upon a time known as
+surname), if any.
+.TP
+.BI "char **" photos.
+Pathnames to photos of the contact. They are either
+absolute paths or relative to the user's home directory.
+
+Applications may decide which photo to use based on
+their size, but user shall put the order of preference.
+
+For each telephone number, applications should only use
+photos that are shared exactly between the contacts that
+share that telephone number.
+
+This list is
+.IR NULL -terminated.
+.TP
+.BI "char **" groups
+List of groups the contact is a member of. For the
+special pseudocontact
+.BR .nobody ,
+this list only contains groups that should be exist,
+but the contact should not be a member of them, allowing
+the existance of empty groups. This list is
+.IR NULL -terminated.
+.TP
+.BI "char *" notes
+Multiline entry for personal notes about the contact.
+.TP
+.BI "struct libcontacts_block **" blocks
+List of contact block information for the contact.
+This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_organisation **" organisations
+List of organisation memberships for the contact.
+This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_email **" emails
+List of e-mail addresses for the contact.
+This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_pgpkey **" pgpkeys
+List of PGP-keys for the contact.
+This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_number **" numbers
+List of telephone numbers for the contact.
+This list is
+.IR NULL -terminated.
+
+Telephone numbers can be shared, in case of an incoming call
+where the phone number is shared, the application shall list
+contacts that telephone number.
+.TP
+.BI "struct libcontacts_address **" addresses
+Address (physical location) information for the contact.
+This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_site **" sites
+Internet sites (e.g. Web sites) that the contact own or
+has an account on. This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_chat **" chats
+The contact's contact information for different services,
+like instant messengers. Entries shall be added by the
+applications that use the chat services. This list is
+.IR NULL -terminated.
+.TP
+.BI "struct libcontacts_birthday *" birthday
+When the contact celebrates his birthday.
+.TP
+.BI "int " in_case_of_emergency
+Whether the contact shall be listed as an
+In Case of Emergency (ICE) contact that can be
+view without unlocking the phone.
+.TP
+.BI "enum libcontacts_gender " gender
+The gender of the contact. This lets applications select
+a default profile picture for the contact.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the contact, that was not recognised by
+.BR libcontacts .
+This list is
+.IR NULL -terminated.
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_address
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+What is the address for. For example,
+.B \(dqhome\(dq
+may be used if it is the contact's home address,
+.B \(dqcabin\(dq
+if its his summer cabin, or
+.B \(dqwork\(dq
+if its his workplace. If the contact for example
+has to workplaces, Alphatech and Betatech,
+.B \(dqwork, alphatech\(dq
+and
+.B \(dqwork, betatech\(dq
+would be useful values.
+.TP
+.BI "char *" care_of
+Care of address.
+.TP
+.BI "char *" address
+Steet address, street number, floor number, appartment number, etc.,
+all in one line.
+.TP
+.BI "char *" postcode
+The post code.
+.TP
+.BI "char *" city
+The post town.
+.TP
+.BI "char *" country
+The country.
+.TP
+.BI "int " have_coordinates
+Non-zero if
+.I latitude
+and
+.I longitude
+are defined.
+.TP
+.BI "double " latitude
+Latitudinal GPS coordinate.
+.TP
+.BI "double " latitude
+Longitudinal GPS coordinate.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the address, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_birthday
+with the following fields:
+.RS
+.TP
+.BI "unsigned int " year
+The year, the contact was born, 0 if unknown.
+.TP
+.BI "unsigned int " month
+The month, the contact was born, 0 if unknown.
+.TP
+.BI "unsigned int " day
+The day of the month, the contact was born, 0 if unknown.
+.TP
+.BI "int " before_on_common
+This field is applicable only if the contact's birthday is
+on February 29. If non-zero, he prefers to celebrate his
+birthday one day early: on February 29, on common years.
+If zero, he prefers to celebrate his birthday on the proper
+date: on March 1, on common years.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the birthday, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_block
+with the following fields:
+.RS
+.TP
+.BI "char *" service
+The service the block is applied to. Names beginning with a
+dot are reserved, currently defined special service names are:
+.RS
+.TP
+.B .call
+Telephone calls.
+.TP
+.B .sms
+SMS, MMS, and similar.
+.TP
+.B .global
+The block allows everywhere. When checking if a contact
+is blocked, this entry is least prioritised, meaning that
+if a block entry that is specific the service that makes
+checks exists, that entry is used, otherwise this entry
+is used.
+.PP
+Other values are defines by the services that use them,
+and should, if appropriate, be the package name of the
+application's reference implementation. In some situation,
+the protocol may be standardised, in which case the name
+of the protocol should be used. These values
+shall be identical to those used in
+.BR "struct libcontacts_chat" .
+.RE
+.TP
+.BI "int " explicit
+Whether the contact shall be let known that he is being
+blocked.
+.TP
+.BI "enum libcontacts_block_type " shadow_block
+How the service shall behave if it does not let the contact
+know he is being blocked.
+.TP
+.BI "time_t " soft_unblock
+POSIX time that if passed, the service shall ask the user
+if the contact shall be unblocked. 0 if never.
+.TP
+.BI "time_t " hard_unblock
+POSIX time that if passed, the service shall automatically
+unblock the contact. 0 if never.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the block entry, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_chat
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+The context in which the chat account is used. For example
+.B \(dqpersonal\(dq
+or
+.BR \(dqwork\(dq .
+.TP
+.BI "char *" service
+The service in which the account exists. For example
+.BR \(dqmatrix\(dq .
+Values are defines by the services that use them,
+and should, if appropriate, be the package name of the
+application's reference implementation. In some situation,
+the protocol may be standardised, in which case the name
+of the protocol should be used.
+.TP
+.BI "char *" address
+The account username, telephone number, ID or other address.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the chat account, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_email
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+The context in which the e-mail account is used. For example
+.B \(dqpersonal\(dq
+or
+.BR \(dqwork\(dq .
+.TP
+.BI "char *" address
+The e-mail address.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the e-mail account, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_number
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+The context in which the telephone number is used. For example
+.BR \(dqhome\(dq ,
+.BR \(dqpersonal\(dq ,
+or
+.BR \(dqwork\(dq .
+.TP
+.BI "char *" number
+The telephone number.
+.TP
+.BI "int " is_mobile
+Whether the number is to a device that can receive SMS-message, e.g. a mobile telephone.
+.TP
+.BI "int " is_facsimile
+Whether the number is to a facsimile machine (fax).
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the telephone number, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_organisation
+with the following fields:
+.RS
+.TP
+.BI "char *" organisation
+The name of the organisation the contact is a member of.
+.TP
+.BI "char *" title
+The contact's title or role within the orginisation.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the organisation membership, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_pgpkey
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+The context in which the PGP-key is used. For example
+.B \(dqpersonal\(dq
+or
+.BR \(dqwork\(dq .
+.TP
+.BI "char *" id
+The fingerprint if the PGP-key.
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the PGP-key, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B struct libcontacts_site
+with the following fields:
+.RS
+.TP
+.BI "char *" context
+The context in which the site is used. For example
+.B \(dqblog\(dq
+or
+.BR \(dqsoftware\(dq .
+.TP
+.BI "char *" address
+Address to the site, including protocol. For example
+.B https://example.org
+or
+.BR gopher://example.org .
+.TP
+.BI "char **" unrecognised_data
+List of entries, for the site, that was not recognised by
+.BR libcontacts .
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B enum libcontacts_block_type
+with the following values:
+.RS
+.TP
+.B LIBCONTACTS_SILENT
+The phone shall not call its owner's attention.
+.TP
+.B LIBCONTACTS_BLOCK_OFF
+The phone shall appear to the caller as as turned off.
+.TP
+.B LIBCONTACTS_BLOCK_BUSY
+The phone shall appear to the caller as as busy.
+.TP
+.B LIBCONTACTS_BLOCK_IGNORE
+The phone shall appear to the caller as turned on
+but with no one answering.
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines
+.B enum libcontacts_gender
+with the following values:
+.RS
+.TP
+.B LIBCONTACTS_UNSPECIFIED_GENDER
+No gender has been specified for the contact.
+.TP
+.B LIBCONTACTS_NOT_A_PERSON
+The contact is not to a person. It may be to a company or service.
+.TP
+.B LIBCONTACTS_MALE
+The contact is a male.
+.TP
+.B LIBCONTACTS_FEMALE
+The contact is a female.
+.RE
+.PP
+The
+.B <libcontacts.h>
+header defines the following functions:
+.RS
+.TP
+.BR libcontacts_list_contacts (3)
+Get a list of all contacts.
+.TP
+.BR libcontacts_load_contact (3)
+Load a contact.
+.TP
+.BR libcontacts_load_contacts (3)
+Load all contacts.
+.TP
+.BR libcontacts_save_contact (3)
+Save a contact.
+.TP
+.BR libcontacts_contact_destroy (3)
+Deallocate memory for a contact entry.
+.TP
+.BR libcontacts_address_destroy (3)
+Deallocate memory for a contact address entry.
+.TP
+.BR libcontacts_birthday_destroy (3)
+Deallocate memory for a contact birthday entry.
+.TP
+.BR libcontacts_block_destroy (3)
+Deallocate memory for a contact block entry.
+.TP
+.BR libcontacts_chat_destroy (3)
+Deallocate memory for a contact chat service address entry.
+.TP
+.BR libcontacts_email_destroy (3)
+Deallocate memory for a contact e-mail address entry.
+.TP
+.BR libcontacts_number_destroy (3)
+Deallocate memory for a contact telephone number entry.
+.TP
+.BR libcontacts_organisation_destroy (3)
+Deallocate memory for a contact organisation membership entry.
+.TP
+.BR libcontacts_pgp_destroy (3)
+Deallocate memory for a contact PGP-key fingerprint entry.
+.TP
+.BR libcontacts_site_destroy (3)
+Deallocate memory for a contact Internet site entry.
+.TP
+.BR libcontacts_get_path (3)
+Get the file information for a contact is or would be stored in.
+.TP
+.BR libcontacts_parse_contact (3)
+Parse a contact file.
+.TP
+.BR libcontacts_format_contact (3)
+Construct a contact file.
+.TP
+.BR libcontacts_same_number (3)
+Compare two telephone numbers for equality.
+.RE
+
+.SH SEE ALSO
+.BR libcontacts (7),
+.BR contacts (5)

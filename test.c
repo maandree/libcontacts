@@ -74,7 +74,7 @@ main(void)
 
 	touch(".testdir/.config/contacts/alpha");
 	touch(".testdir/.config/contacts/.me");
-	touch(".testdir/.config/contacts/.groups");
+	touch(".testdir/.config/contacts/.nobody");
 	touch(".testdir/.config/contacts/beta");
 	touch(".testdir/.config/contacts/.exclude");
 	touch(".testdir/.config/contacts/gamma");
