@@ -159,7 +159,7 @@ may be used if it is the contact's home address,
 if its his summer cabin, or
 .B \(dqwork\(dq
 if its his workplace. If the contact for example
-has to workplaces, Alphatech and Betatech,
+has two workplaces, Alphatech and Betatech,
 .B \(dqwork, alphatech\(dq
 and
 .B \(dqwork, betatech\(dq
@@ -191,7 +191,7 @@ are defined.
 .BI "double " latitude
 Latitudinal GPS coordinate.
 .TP
-.BI "double " latitude
+.BI "double " longitude
 Longitudinal GPS coordinate.
 .TP
 .BI "char **" unrecognised_data
@@ -246,13 +246,13 @@ Telephone calls.
 SMS, MMS, and similar.
 .TP
 .B .global
-The block allows everywhere. When checking if a contact
+The block applies everywhere. When checking if a contact
 is blocked, this entry is least prioritised, meaning that
 if a block entry that is specific the service that makes
 checks exists, that entry is used, otherwise this entry
 is used.
 .PP
-Other values are defines by the services that use them,
+Other values are defined by the services that use them,
 and should, if appropriate, be the package name of the
 application's reference implementation. In some situation,
 the protocol may be standardised, in which case the name
@@ -432,7 +432,8 @@ with the following values:
 .RS
 .TP
 .B LIBCONTACTS_SILENT
-The phone shall not call its owner's attention.
+The phone shall not call its owner's attention. This
+means that the contact should not actually be blocked.
 .TP
 .B LIBCONTACTS_BLOCK_OFF
 The phone shall appear to the caller as as turned off.

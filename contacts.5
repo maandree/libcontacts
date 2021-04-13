@@ -114,25 +114,73 @@ subentries are:
 .RS
 .TP
 .B SRV
-TODO
+The service the block is applied to. Names beginning with a dot
+.RB ( . )
+are reserved, currently defined special service names are:
+.RS
+.TP
+.B .call
+Telephone calls.
+.TP
+.B .sms
+SMS, MMS, and similar.
+.TP
+.B .global
+The block applies everywhere. When checking if a contact is
+blocked, this entry is least prioritised, meaning that if a
+block entry that is specific the service that makes checks
+exists, that entry is used, otherwise this entry is used.
+.PP
+Other values are defined by the services that use them, and
+should, if appropriate, be the package name of the application's
+reference implementation. In some situation, the protocol may
+be standardised, in which case the name of the protocol should
+be used. These values shall be identical to those used in the
+top-level entry
+.BR CHAT 's
+subentry
+.BR SRV .
+.RE
 .TP
 .B EXPLICIT
-TODO
+Flag without data, that specifies that the contact shall
+be let known that he is being blocked.
 .TP
 .B ASK
-TODO
+POSIX time that if passed, the service shall ask the user
+if the contact shall be unblocked; must be an unsigned decimal
+integer. 0 or unspecified if never.
 .TP
 .B REMOVE
-TODO
+POSIX time that if passed, the service shall automatically
+unblock the contact; must be an unsigned decimal integer.
+0 or unspecified if never.
 .TP
 .B OFF
-TODO
+Flag without data, that specifies that the service shall,
+unless it lets the contact know he is being blocked, pretend
+that the phone is turned off.
 .TP
 .B BUSY
-TODO
+Flag without data, that specifies that the service shall,
+unless it lets the contact know he is being blocked, pretend
+that the user is busy and cannot answer.
 .TP
 .B IGNORE
-TODO
+Flag without data, that specifies that the service shall,
+unless it lets the contact know he is being blocked, just
+ignore the call or message.
+.PP
+The flags
+.BR OFF ,
+.BR BUSY ,
+and
+.BR IGNORE
+may not be combined. If neither is specified, the service
+shall not actually block user, unless
+.B EXPLICIT
+is specified and the service can honour that flag, but
+instead just not call its owner's attention.
 .RE
 .TP
 .B ORG:
@@ -141,10 +189,10 @@ subentries are:
 .RS
 .TP
 .B ORG
-TODO
+The name of the organisation the contact is a member of.
 .TP
 .B TITLE
-TODO
+The contact's title or role within the orginisation.
 .RE
 .TP
 .B EMAIL:
@@ -152,10 +200,13 @@ E-mail address for the contact. Standard subentries are:
 .RS
 .TP
 .B CTX
-TODO
+The context in which the e-mail account is used. For example
+.B personal
+or
+.BR work .
 .TP
 .B ADDR
-TODO
+The e-mail address.
 .RE
 .TP
 .B KEY:
@@ -163,10 +214,13 @@ PGP-key for the contact. Standard subentries are:
 .RS
 .TP
 .B CTX
-TODO
+The context in which the PGP-key is used. For example
+.B personal
+or
+.BR work .
 .TP
 .B ID
-TODO
+The fingerprint if the PGP-key.
 .RE
 .TP
 .B PHONE:
@@ -174,16 +228,21 @@ Telephone numbers for the contact. Standard subentries are:
 .RS
 .TP
 .B CTX
-TODO
+The context in which the telephone number is used. For example
+.BR home ,
+.BR personal ,
+or
+.BR work .
 .TP
 .B NUMBER
-TODO
+The telephone number.
 .TP
 .B MOBILE
-TODO
+Whether the number is to a device that can receive SMS-message,
+e.g. a mobile telephone.
 .TP
 .B FAX
-TODO
+Whether the number is to a facsimile machine (fax).
 .PP
 Telephone numbers can be shared, in case of an incoming
 call where the phone number is shared, the application
@@ -196,25 +255,48 @@ subentries are:
 .RS
 .TP
 .B CTX
-TODO
+What is the address for. For example,
+.B home
+may be used if it is the contact's home address,
+.B cabin
+if its his summer cabin, or
+.B work
+if its his workplace. If the contact for example has two
+workplaces, Alphatech and Betatech,
+.B work, alphatech
+and
+.B work, betatech
+would be useful values.
 .TP
 .B COUNTRY
-TODO
+The country.
 .TP
 .B C/O
-TODO
+Care of address.
 .TP
 .B ADDR
-TODO
+Steet address, street number, floor number, appartment number, etc.
 .TP
 .B CODE
-TODO
+The post code.
 .TP
 .B CITY
-TODO
+The post town.
 .TP
 .B COORD
-TODO
+The GPS coordinates in decimal format specified as the
+latitude followed by a regular blank space and the longitude.
+Unless
+.B +
+or
+.B -
+is used,
+.BR N ,
+.BR S ,
+.BR W ,
+and
+.BR E
+suffixes may be used.
 .RE
 .TP
 .B SITE:
@@ -223,10 +305,16 @@ has an account on. Standard subentries are:
 .RS
 .TP
 .B CTX
-TODO
+The context in which the site is used. For example
+.B blog
+or
+.BR software .
 .TP
 .B ADDR
-TODO
+Address to the site, including protocol. For example
+.B https://example.org
+or
+.BR gopher://example.org .
 .RE
 .TP
 .B CHAT:
@@ -235,34 +323,53 @@ an instant messenging service. Standard subentries are:
 .RS
 .TP
 .B CTX
-TODO
+The context in which the chat account is used. For example
+.B personal
+or
+.BR work .
 .TP
 .B SRV
-TODO
+The service in which the account exists. For example
+.BR matrix .
+Values are defines by the services that use them, and should,
+if appropriate, be the package name of the application's
+reference implementation. In some situation, the protocol
+may be standardised, in which case the name of the protocol
+should be used.
 .TP
 .B ADDR
-TODO
+The account username, telephone number, ID or other address.
 .PP
 Entries shall be added by the applications that use the
 chat services.
 .RE
 .TP
 .B BIRTH:
-When the contact celebrates his birthday. Standard
+When the contact celebrates his birthday. The date shall
+be specified in the Gregorian calendar. Conversion and or
+from other calendar is up to applications. Standard
 subentries are:
 .RS
 .TP
 .B YEAR
-TODO
+The year of the birthdate; must be an unsigned decimal
+integer. 0 will be treated as unspecified.
 .TP
 .B MONTH
-TODO
+The month of the birthdate; must be an unsigned decimal
+integer. 0 will be treated as unspecified.
 .TP
 .B DAY
-TODO
+The day of the month of the birthdate; must be an unsigned
+decimal integer. 0 will be treated as unspecified.
 .TP
 .B EARLY
-TODO
+This flag may used (without any data specified) if the
+contact's birthday is on February 29. If specified, he
+prefers to celebrate his birthday one day early: on
+February 29, on common years. Otherwise, he presumable
+prefers to celebrate his birthday on the proper date:
+on March 1, on common years.
 .PP
 May only be specified once.
 .RE
