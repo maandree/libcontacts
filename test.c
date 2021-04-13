@@ -99,6 +99,7 @@ main(void)
 	/* TODO test libcontacts_load_contacts */
 	/* TODO test libcontacts_format_contact */
 	/* TODO test libcontacts_save_contact */
+	/* TODO test libcontacts_contact_destroy */
 
 	/* TODO check for memory leaks */
 	/* TODO check for file descriptor leaks */

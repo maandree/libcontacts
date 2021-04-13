@@ -1,0 +1,34 @@
+.TH LIBCONTACTS_ORGANISATION_DESTROY 3 LIBCONTACTS
+.SH NAME
+libcontacts_organisation_destroy \- Deallocate memory for a contact organisation membership entry
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_organisation_destroy(struct libcontacts_organisation *\fIentry\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_organisation_destroy ()
+function deallocates the memory stored in
+.IR *entry .
+The caller must manually call
+.BR free (3)
+on the pointer
+.I entry
+afterwards if it a freeable pointer.
+
+.SH RETURN VALUE
+None.
+
+.SH ERRORS
+None.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7),
+.BR libcontacts_contact_destroy (3)

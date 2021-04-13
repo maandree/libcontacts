@@ -32,7 +32,7 @@ int
 libcontacts_save_contact(struct libcontacts_contact *contact, const struct passwd *user)
 {
 	char *data = NULL, *path = NULL, *tmppath = NULL;
-	int oflags = O_WRONLY | O_CREAT | O_TRUNC;
+	int oflags = O_WRONLY | O_CREAT | O_TRUNC, newid = 0;
 	int fd = -1, saved_errno = errno, dirs_created = 0;
 	ssize_t r;
 	size_t p, n, num = 0;
@@ -49,10 +49,12 @@ libcontacts_save_contact(struct libcontacts_contact *contact, const struct passw
 				contact->id = strdup("unnamed");
 				if (!contact->id)
 					goto fail;
+				newid = 1;
 			} else {
 				contact->id = strdup(contact->name);
 				if (!contact->id)
 					goto fail;
+				newid = 1;
 				for (p = 0; contact->id[p]; p++) {
 					if (isalpha(contact->id[p]))
 						contact->id[p] = (char)tolower(contact->id[p]);
@@ -147,6 +149,10 @@ fail:
 	free(path);
 	free(tmppath);
 	free(basenam);
+	if (newid) {
+		free(contact->id);
+		contact->id = NULL;
+	}
 	errno = saved_errno;
 	return -1;
 }

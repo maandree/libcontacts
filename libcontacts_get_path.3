@@ -1,0 +1,94 @@
+.TH LIBCONTACTS_GET_PATH 3 LIBCONTACTS
+.SH NAME
+libcontacts_get_path \- Get the file information for a contact is or would be stored in
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+char *libcontacts_get_path(const char *\fIid\fP, const struct passwd *\fIuser\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_get_path ()
+function get the path to the file for the contact with
+the ID specified in the
+.I id
+parameter, neither this file nor its directory need exist
+for successful completion to the place. If
+.I id
+is the empty string, the directory where all contacts is
+returned with a trailing slash
+.RB ( / ).
+.PP
+.I user
+shall be the user's entry in the password database (not
+the shadow database). This is used for the get user's
+home directory.
+
+.SH RETURN VALUE
+The
+.BR libcontacts_get_path ()
+function returns the path the file where the information
+for the specified contact is stored (or if requested,
+the directory where contact files are stored) upon successful
+completion; on failure
+.I NULL
+is returned and
+.I errno
+is set appropriately to indicate the error.
+
+.SH ERRORS
+The
+.BR libcontacts_get_path ()
+function will fail if:
+.TP
+.B EINVAL
+Either parameter is
+.I NULL
+or the home directory field in
+.I user
+is
+.I NULL
+or the empty string.
+.PP
+The
+.BR libcontacts_get_path ()
+function may also fail for any reason specified for the
+.BR malloc (3)
+function.
+
+.SH EXTENDED DESCRIPTION
+All contact file shall be stored in
+.I .config/contacts/
+within the user's home directory. All environment variables
+shall be ignored.
+.PP
+The contact ID
+.RI ( id )
+must not contain slashes, and should ideally only contain
+lower case ASCII letters, ASCII digits, and ASCII hyphens.
+Contact ID's starting with a dot have special meaning,
+currently define ones are:
+.TP
+.B .me
+Contact information for the user.
+.TP
+.B .groups
+Pseudo-contact where groups that how no members can be
+stored.
+.PP
+The contact ID
+.RI ( id )
+must end with a tilde, these are used to write to until
+file system synchronisation has takes place for the file,
+and the file is subsequently renamed.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7),
+.BR libcontacts_load_contact (7),
+.BR libcontacts_save_contact (7)

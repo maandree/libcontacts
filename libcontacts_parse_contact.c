@@ -129,7 +129,7 @@ appendstr(char **strp, char *new)
 }
 
 static int
-parse_coord(char *s, double *lat, double *lon)
+parse_coord(const char *s, double *lat, double *lon)
 {
 	int withsign = 0;
 	int saved_errno = errno;
@@ -139,7 +139,7 @@ parse_coord(char *s, double *lat, double *lon)
 	withsign = (s[0] == '-' || s[0] == '+');
 	if (s[withsign] != '.' && !isdigit(s[withsign]))
 		goto bad;
-	*lat = strtod(s, &s);
+	*lat = strtod(s, (char **)(void *)&s);
 	if (errno)
 		return -1;
 	if (!withsign && (s[0] == 'N' || s[0] == 'S')) {
@@ -155,7 +155,7 @@ parse_coord(char *s, double *lat, double *lon)
 	withsign = (s[0] == '-' || s[0] == '+');
 	if (s[withsign] != '.' && !isdigit(s[withsign]))
 		goto bad;
-	*lon = strtod(s, &s);
+	*lon = strtod(s, (char **)(void *)&s);
 	if (errno)
 		return -1;
 	if (!withsign && (s[0] == 'E' || s[0] == 'W')) {
@@ -177,7 +177,7 @@ bad:
 
 
 int
-libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
+libcontacts_parse_contact(char *data, struct libcontacts_contact *contactp)
 {
 #define TEST(S, L)\
 	(!strncmp((test_tmp = (S)), L, sizeof(L) - 1) &&\
@@ -208,258 +208,261 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 	int state = 0;
 	unsigned int u;
 	unsigned char uc;
+	char c = 0;
 
-	memset(contact, 0, sizeof(*contact));
+	memset(contactp, 0, sizeof(*contactp));
 
-	for (p = data; p; p = q) {
+	for (p = data; p; p = q ? (*q = c, &q[1]) : NULL) {
 		q = strpbrk(p, "\n\r\f");
-		if (q)
-			*q++ = '\0';
+		if (q) {
+			c = *q;
+			*q = '\0';
+		}
 
 		switch ((*p == ' ' || *p == '\t') ? state : 0) {
 		default:
 			state = 0;
 			if (!*p);
-			else if (TEST(p, "NAME") && !contact->name) {
-				if (!(contact->name = strdup(getstr(p))))
+			else if (TEST(p, "NAME") && !contactp->name) {
+				if (!(contactp->name = strdup(getstr(p))))
 					goto fail;
 
-			} else if (TEST(p, "FNAME") && !contact->first_name) {
-				if (!(contact->first_name = strdup(getstr(p))))
+			} else if (TEST(p, "FNAME") && !contactp->first_name) {
+				if (!(contactp->first_name = strdup(getstr(p))))
 					goto fail;
 
-			} else if (TEST(p, "LNAME") && !contact->last_name) {
-				if (!(contact->last_name = strdup(getstr(p))))
+			} else if (TEST(p, "LNAME") && !contactp->last_name) {
+				if (!(contactp->last_name = strdup(getstr(p))))
 					goto fail;
 
-			} else if (TEST(p, "FLNAME") && !contact->full_name) {
-				if (!(contact->full_name = strdup(getstr(p))))
+			} else if (TEST(p, "FLNAME") && !contactp->full_name) {
+				if (!(contactp->full_name = strdup(getstr(p))))
 					goto fail;
 
-			} else if (TEST(p, "NICK") && !contact->nickname) {
-				if (!(contact->nickname = strdup(getstr(p))))
+			} else if (TEST(p, "NICK") && !contactp->nickname) {
+				if (!(contactp->nickname = strdup(getstr(p))))
 					goto fail;
 
 			} else if (TEST(p, "PHOTO")) {
-				if (addstr(&contact->photos, getstr(p)))
+				if (addstr(&contactp->photos, getstr(p)))
 					goto fail;
 
 			} else if (TEST(p, "GROUP")) {
-				if (addstr(&contact->groups, getstr(p)))
+				if (addstr(&contactp->groups, getstr(p)))
 					goto fail;
 
 			} else if (TEST(p, "NOTES")) {
-				if (appendstr(&contact->notes, getstr(p)))
+				if (appendstr(&contactp->notes, getstr(p)))
 					goto fail;
 
 			} else if (!strcmp(p, "ORG:")) {
-				ADD(contact->organisations);
+				ADD(contactp->organisations);
 				state = 1;
 				break;
 			case 1:
-				if (TEST(unindent(p), "ORG") && !contact->organisations[i]->organisation) {
-					if (!(contact->organisations[i]->organisation = strdup(getstr(p))))
+				if (TEST(unindent(p), "ORG") && !contactp->organisations[i]->organisation) {
+					if (!(contactp->organisations[i]->organisation = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "TITLE") && !contact->organisations[i]->title) {
-					if (!(contact->organisations[i]->title = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "TITLE") && !contactp->organisations[i]->title) {
+					if (!(contactp->organisations[i]->title = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->organisations[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->organisations[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "EMAIL:")) {
-				ADD(contact->emails);
+				ADD(contactp->emails);
 				state = 2;
 				break;
 			case 2:
-				if (TEST(unindent(p), "CTX") && !contact->emails[i]->context) {
-					if (!(contact->emails[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->emails[i]->context) {
+					if (!(contactp->emails[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "ADDR") && !contact->emails[i]->address) {
-					if (!(contact->emails[i]->address = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "ADDR") && !contactp->emails[i]->address) {
+					if (!(contactp->emails[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->emails[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->emails[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "KEY:")) {
-				ADD(contact->pgpkeys);
+				ADD(contactp->pgpkeys);
 				state = 3;
 				break;
 			case 3:
-				if (TEST(unindent(p), "CTX") && !contact->pgpkeys[i]->context) {
-					if (!(contact->pgpkeys[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->pgpkeys[i]->context) {
+					if (!(contactp->pgpkeys[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "ID") && !contact->pgpkeys[i]->id) {
-					if (!(contact->pgpkeys[i]->id = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "ID") && !contactp->pgpkeys[i]->id) {
+					if (!(contactp->pgpkeys[i]->id = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->pgpkeys[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->pgpkeys[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "PHONE:")) {
-				ADD(contact->numbers);
+				ADD(contactp->numbers);
 				state = 4;
 				break;
 			case 4:
-				if (TEST(unindent(p), "CTX") && !contact->numbers[i]->context) {
-					if (!(contact->numbers[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->numbers[i]->context) {
+					if (!(contactp->numbers[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "NUMBER") && !contact->numbers[i]->number) {
-					if (!(contact->numbers[i]->number = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "NUMBER") && !contactp->numbers[i]->number) {
+					if (!(contactp->numbers[i]->number = strdup(getstr(p))))
 						goto fail;
 				} else if (!strcmp(unindent(p), "MOBILE")) {
-					contact->numbers[i]->is_mobile = 1;
+					contactp->numbers[i]->is_mobile = 1;
 				} else if (!strcmp(unindent(p), "FAX")) {
-					contact->numbers[i]->is_facsimile = 1;
+					contactp->numbers[i]->is_facsimile = 1;
 				} else {
-					if (addstr(&contact->numbers[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->numbers[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "ADDR:")) {
-				ADD(contact->addresses);
+				ADD(contactp->addresses);
 				state = 5;
 				break;
 			case 5:
-				if (TEST(unindent(p), "CTX") && !contact->addresses[i]->context) {
-					if (!(contact->addresses[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->addresses[i]->context) {
+					if (!(contactp->addresses[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "COUNTRY") && !contact->addresses[i]->country) {
-					if (!(contact->addresses[i]->country = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "COUNTRY") && !contactp->addresses[i]->country) {
+					if (!(contactp->addresses[i]->country = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "C/O") && !contact->addresses[i]->care_of) {
-					if (!(contact->addresses[i]->care_of = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "C/O") && !contactp->addresses[i]->care_of) {
+					if (!(contactp->addresses[i]->care_of = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "ADDR") && !contact->addresses[i]->address) {
-					if (!(contact->addresses[i]->address = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "ADDR") && !contactp->addresses[i]->address) {
+					if (!(contactp->addresses[i]->address = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "CODE") && !contact->addresses[i]->postcode) {
-					if (!(contact->addresses[i]->postcode = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "CODE") && !contactp->addresses[i]->postcode) {
+					if (!(contactp->addresses[i]->postcode = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "CITY") && !contact->addresses[i]->city) {
-					if (!(contact->addresses[i]->city = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "CITY") && !contactp->addresses[i]->city) {
+					if (!(contactp->addresses[i]->city = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "COORD") && !contact->addresses[i]->have_coordinates) {
+				} else if (TEST(unindent(p), "COORD") && !contactp->addresses[i]->have_coordinates) {
 					if (!parse_coord(getstr(p),
-					                 &contact->addresses[i]->latitude,
-					                 &contact->addresses[i]->longitude)) {
-						contact->addresses[i]->have_coordinates = 1;
+					                 &contactp->addresses[i]->latitude,
+					                 &contactp->addresses[i]->longitude)) {
+						contactp->addresses[i]->have_coordinates = 1;
 					} else {
-						if (addstr(&contact->addresses[i]->unrecognised_data, unindent(p)))
+						if (addstr(&contactp->addresses[i]->unrecognised_data, unindent(p)))
 							goto fail;
 					}
 				} else {
-					if (addstr(&contact->addresses[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->addresses[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "SITE:")) {
-				ADD(contact->sites);
+				ADD(contactp->sites);
 				state = 6;
 				break;
 			case 6:
-				if (TEST(unindent(p), "CTX") && !contact->sites[i]->context) {
-					if (!(contact->sites[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->sites[i]->context) {
+					if (!(contactp->sites[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "ADDR") && !contact->sites[i]->address) {
-					if (!(contact->sites[i]->address = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "ADDR") && !contactp->sites[i]->address) {
+					if (!(contactp->sites[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->sites[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->sites[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "CHAT:")) {
-				ADD(contact->chats);
+				ADD(contactp->chats);
 				state = 7;
 				break;
 			case 7:
-				if (TEST(unindent(p), "CTX") && !contact->chats[i]->context) {
-					if (!(contact->chats[i]->context = strdup(getstr(p))))
+				if (TEST(unindent(p), "CTX") && !contactp->chats[i]->context) {
+					if (!(contactp->chats[i]->context = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "SRV") && !contact->chats[i]->service) {
-					if (!(contact->chats[i]->service = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "SRV") && !contactp->chats[i]->service) {
+					if (!(contactp->chats[i]->service = strdup(getstr(p))))
 						goto fail;
-				} else if (TEST(unindent(p), "ADDR") && !contact->chats[i]->address) {
-					if (!(contact->chats[i]->address = strdup(getstr(p))))
+				} else if (TEST(unindent(p), "ADDR") && !contactp->chats[i]->address) {
+					if (!(contactp->chats[i]->address = strdup(getstr(p))))
 						goto fail;
 				} else {
-					if (addstr(&contact->chats[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->chats[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "BLOCK:")) {
-				ADD(contact->blocks);
+				ADD(contactp->blocks);
 				state = 8;
 				break;
 			case 8:
-				if (TEST(unindent(p), "SRV") && !contact->blocks[i]->service) {
-					if (!(contact->blocks[i]->service = strdup(getstr(p))))
+				if (TEST(unindent(p), "SRV") && !contactp->blocks[i]->service) {
+					if (!(contactp->blocks[i]->service = strdup(getstr(p))))
 						goto fail;
-				} else if (!strcmp(unindent(p), "OFF") && !contact->blocks[i]->shadow_block) {
-					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_OFF;
-				} else if (!strcmp(unindent(p), "BUSY") && !contact->blocks[i]->shadow_block) {
-					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_BUSY;
-				} else if (!strcmp(unindent(p), "IGNORE") && !contact->blocks[i]->shadow_block) {
-					contact->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_IGNORE;
+				} else if (!strcmp(unindent(p), "OFF") && !contactp->blocks[i]->shadow_block) {
+					contactp->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_OFF;
+				} else if (!strcmp(unindent(p), "BUSY") && !contactp->blocks[i]->shadow_block) {
+					contactp->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_BUSY;
+				} else if (!strcmp(unindent(p), "IGNORE") && !contactp->blocks[i]->shadow_block) {
+					contactp->blocks[i]->shadow_block = LIBCONTACTS_BLOCK_IGNORE;
 				} else if (!strcmp(unindent(p), "EXPLICIT")) {
-					contact->blocks[i]->explicit = 1;
-				} else if (TEST(unindent(p), "ASK") && !contact->blocks[i]->soft_unblock && (t = gettime(p))) {
-					contact->blocks[i]->soft_unblock = t;
-				} else if (TEST(unindent(p), "REMOVE") && !contact->blocks[i]->hard_unblock && (t = gettime(p))) {
-					contact->blocks[i]->hard_unblock = t;
+					contactp->blocks[i]->explicit = 1;
+				} else if (TEST(unindent(p), "ASK") && !contactp->blocks[i]->soft_unblock && (t = gettime(p))) {
+					contactp->blocks[i]->soft_unblock = t;
+				} else if (TEST(unindent(p), "REMOVE") && !contactp->blocks[i]->hard_unblock && (t = gettime(p))) {
+					contactp->blocks[i]->hard_unblock = t;
 				} else {
-					if (addstr(&contact->blocks[i]->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->blocks[i]->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
-			} else if (!strcmp(p, "BIRTH:") && !contact->birthday) {
-				contact->birthday = calloc(1, sizeof(*contact->birthday));
-				if (!contact->birthday)
+			} else if (!strcmp(p, "BIRTH:") && !contactp->birthday) {
+				contactp->birthday = calloc(1, sizeof(*contactp->birthday));
+				if (!contactp->birthday)
 					goto fail;
 				state = 9;
 				break;
 			case 9:
-				if (TEST(unindent(p), "YEAR") && !contact->birthday->year && (u = getposuint(p))) {
-					contact->birthday->year = u;
-				} else if (TEST(unindent(p), "MONTH") && !contact->birthday->month && (uc = getposuchar(p))) {
-					contact->birthday->month = uc;
-				} else if (TEST(unindent(p), "DAY") && !contact->birthday->day && (uc = getposuchar(p))) {
-					contact->birthday->day = uc;
+				if (TEST(unindent(p), "YEAR") && !contactp->birthday->year && (u = getposuint(p))) {
+					contactp->birthday->year = u;
+				} else if (TEST(unindent(p), "MONTH") && !contactp->birthday->month && (uc = getposuchar(p))) {
+					contactp->birthday->month = uc;
+				} else if (TEST(unindent(p), "DAY") && !contactp->birthday->day && (uc = getposuchar(p))) {
+					contactp->birthday->day = uc;
 				} else if (!strcmp(unindent(p), "EARLY")) {
-					contact->birthday->before_on_common = 1;
+					contactp->birthday->before_on_common = 1;
 				} else {
-					if (addstr(&contact->birthday->unrecognised_data, unindent(p)))
+					if (addstr(&contactp->birthday->unrecognised_data, unindent(p)))
 						goto fail;
 				}
 				break;
 
 			} else if (!strcmp(p, "ICE")) {
-				contact->in_case_of_emergency = 1;
+				contactp->in_case_of_emergency = 1;
 
-			} else if (!strcmp(p, "NPERSON") && !contact->gender) {
-				contact->gender = LIBCONTACTS_NOT_A_PERSON;
+			} else if (!strcmp(p, "NPERSON") && !contactp->gender) {
+				contactp->gender = LIBCONTACTS_NOT_A_PERSON;
 
-			} else if (!strcmp(p, "MALE") && !contact->gender) {
-				contact->gender = LIBCONTACTS_MALE;
+			} else if (!strcmp(p, "MALE") && !contactp->gender) {
+				contactp->gender = LIBCONTACTS_MALE;
 
-			} else if (!strcmp(p, "FEMALE") && !contact->gender) {
-				contact->gender = LIBCONTACTS_FEMALE;
+			} else if (!strcmp(p, "FEMALE") && !contactp->gender) {
+				contactp->gender = LIBCONTACTS_FEMALE;
 
 			} else {
-				if (addstr(&contact->unrecognised_data, p))
+				if (addstr(&contactp->unrecognised_data, p))
 					goto fail;
 			}
 		}
@@ -468,8 +471,8 @@ libcontacts_parse_contact(char *data, struct libcontacts_contact *contact)
 	return 0;
 
 fail:
-	libcontacts_contact_destroy(contact);
-	memset(contact, 0, sizeof(*contact));
+	libcontacts_contact_destroy(contactp);
+	memset(contactp, 0, sizeof(*contactp));
 	return -1;
 
 #undef TEST

@@ -1,0 +1,80 @@
+.TH LIBCONTACTS_PARSE_CONTACT 3 LIBCONTACTS
+.SH NAME
+libcontacts_parse_contact \- Parse a contact file
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_parse_contact(char *\fIdata\fP, struct libcontacts_contact *\fIcontact\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_parse_contact ()
+function parses the content of a contact file.
+The file content shall be NUL-terminated and
+given in the
+.I data
+parameter. The resulting contact information
+will be stored in the
+.IR *contact .
+The user is responsable for deallocating the
+result when it's no longer needed, using the
+.BR libcontacts_contact_destroy (3)
+function, or manually with
+.BR free (3),
+and the various functions references in the
+.B SEE ALSO
+section.
+.PP
+Note that the file contents do not contain the
+contact ID, so
+.I contact->id
+will be set to
+.IR NULL .
+.PP
+Also note that the contents of
+.I data
+may be modified by the function during the
+execution of the function, it will however be
+restored before the function returns.
+
+.SH RETURN VALUE
+The
+.BR libcontacts_parse_contact ()
+function returns 0 upon successful completion;
+otherwise -1 is returned and
+.I errno
+is set appropriately to indicate the error.
+
+.SH ERRORS
+The
+.BR libcontacts_parse_contact ()
+function may fail for any reason specified for the
+.BR open_memstream (3)
+and
+.BR fprintf (3)
+(other than
+.IR EILSEQ )
+functions.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7)
+.BR libcontacts_load_contact (3),
+.BR libcontacts_format_contact (3),
+.BR libcontacts_get_file (3),
+.BR libcontacts_contact_destroy (3),
+.BR libcontacts_address_destroy (3),
+.BR libcontacts_birthday_destroy (3),
+.BR libcontacts_block_destroy (3),
+.BR libcontacts_chat_destroy (3),
+.BR libcontacts_email_destroy (3),
+.BR libcontacts_number_destroy (3),
+.BR libcontacts_organisation_destroy (3),
+.BR libcontacts_pgpkey_destroy (3),
+.BR libcontacts_site_destroy (3),
+.BR contacts (5),

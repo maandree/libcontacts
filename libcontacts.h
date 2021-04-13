@@ -292,13 +292,13 @@ struct libcontacts_contact {
 
 void libcontacts_contact_destroy(struct libcontacts_contact *);
 int libcontacts_list_contacts(char ***, const struct passwd *, int);
-int libcontacts_load_contact(const char *, struct libcontacts_contact *, const struct passwd *); /* errno = 0 if malformatted */
+int libcontacts_load_contact(const char *, struct libcontacts_contact *, const struct passwd *);
 int libcontacts_load_contacts(struct libcontacts_contact ***, const struct passwd *, int);
 int libcontacts_save_contact(struct libcontacts_contact *, const struct passwd *);
 int libcontacts_same_number(const char *, const char *, const char *, const char *); /* might be removed in the future */
 
 char *libcontacts_get_path(const char *, const struct passwd *);
-int libcontacts_parse_contact(char *, struct libcontacts_contact *); /* does not load .id, not stored in file, but is the filename */
+int libcontacts_parse_contact(char *, struct libcontacts_contact *);
 int libcontacts_format_contact(const struct libcontacts_contact *, char **);
 
 void libcontacts_block_destroy(struct libcontacts_block *);

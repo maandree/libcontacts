@@ -1,0 +1,52 @@
+.TH LIBCONTACTS_FORMAT_CONTACT 3 LIBCONTACTS
+.SH NAME
+libcontacts_format_contact \- Construct a contact file
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_format_contact(const struct libcontacts_contact *\fIcontact\fP, char **\fIdatap\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_format_contact ()
+function formats the content that shall be stored
+the a contact file, for the contact in the
+.I contact
+parameter. The resulting content will be NUL-terminated
+and, upon successful completion, stored in
+.IR *datap .
+The caller must manually deallocate the content with the
+.BR free (3)
+function when it's no longer needed.
+
+.SH RETURN VALUE
+The
+.BR libcontacts_format_contact ()
+function returns 0 upon successful completion;
+otherwise -1 is returned and
+.I errno
+is set appropriately to indicate the error.
+
+.SH ERRORS
+The
+.BR libcontacts_format_contact ()
+function may fail for any reason specified for the
+.BR open_memstream (3)
+and
+.BR fprintf (3)
+(other than
+.IR EILSEQ )
+functions.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7)
+.BR libcontacts_save_contact (3),
+.BR libcontacts_parse_contact (3),
+.BR libcontacts_get_file (3),
+.BR contacts (5),

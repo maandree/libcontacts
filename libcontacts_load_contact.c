@@ -3,7 +3,7 @@
 
 
 int
-libcontacts_load_contact(const char *id, struct libcontacts_contact *contact, const struct passwd *user)
+libcontacts_load_contact(const char *id, struct libcontacts_contact *contactp, const struct passwd *user)
 {
 	int ret, fd, saved_errno;
 	char *data = NULL, *path;
@@ -11,7 +11,7 @@ libcontacts_load_contact(const char *id, struct libcontacts_contact *contact, co
 	ssize_t r;
 	void *new;
 
-	if (!contact) {
+	if (!contactp) {
 		errno = EINVAL;
 		return -1;
 	}
@@ -48,11 +48,11 @@ libcontacts_load_contact(const char *id, struct libcontacts_contact *contact, co
 	}
 
 	close(fd);
-	ret = libcontacts_parse_contact(data, contact);
+	ret = libcontacts_parse_contact(data, contactp);
 	free(data);
-	if (!ret && !(contact->id = strdup(id))) {
-		libcontacts_contact_destroy(contact);
-		memset(contact, 0, sizeof(*contact));
+	if (!ret && !(contactp->id = strdup(id))) {
+		libcontacts_contact_destroy(contactp);
+		memset(contactp, 0, sizeof(*contactp));
 		return -1;
 	}
 	return ret;

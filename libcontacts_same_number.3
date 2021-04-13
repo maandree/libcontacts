@@ -1,0 +1,74 @@
+.TH LIBCONTACTS_SAME_NUMBER 3 LIBCONTACTS
+.SH NAME
+libcontacts_same_number \- Save a contact
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_same_number(const char *\fIa\fP, const char *\fIa_country\fP, const char *\fIb\fP, const char *\fIb_country\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_same_number ()
+function checks whether the telephone numbers specified
+in the
+.I a
+and
+.I b
+parameters are the same number.
+.PP
+The country calling code for
+.I a
+and
+.I b
+may be specified in the
+.I a_country
+and
+.I b_country
+parameters respectively. If the empty string is specified
+as a country calling code, it is treated as unspecified.
+.B \(dq00\(dq
+will be added automatically if it, or its alternative
+.B \(dq+\(dq
+is missing.
+
+.SH RETURN VALUE
+The
+.BR libcontacts_same_number ()
+function returns 1 or 0 upon successful completion;
+otherwise -1 is returned and
+.I errno
+is set appropriately to indicate the error.
+If the returned value is 1, the numbers match,
+if the returned value is 0, the numbers do not match.
+
+.SH ERRORS
+The
+.BR libcontacts_same_number ()
+function will fail if:
+.TP
+.B EINVAL
+The
+.I a
+or
+.I b
+is
+.I NULL
+or the empty string.
+.PP
+The
+.BR libcontacts_same_number ()
+function may fail for any reason specified for the
+.BR malloc (3)
+function.
+
+.SH FUTURE DIRECTIONS
+This function may be removed in the future.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7)

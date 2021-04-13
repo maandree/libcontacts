@@ -1,0 +1,74 @@
+.TH LIBCONTACTS_LOAD_CONTACTS 3 LIBCONTACTS
+.SH NAME
+libcontacts_load_contacts \- Load all contacts
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_load_contacts(struct libcontacts_contact ***\fIcontactsp\fP, const struct passwd *\fIuser\fP, int \fIwith_me\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_load_contacts ()
+function loads all regular contact entries and stores
+them as a 
+.IR NULL -termianted
+list in
+.I *contactsp
+upon successful completion. If
+.I with_me
+is non-zero, the
+.B .me
+entry will also be included, if it exists.
+.PP
+.I user
+shall be the user's entry in the password database (not
+the shadow database). This is used for the get user's
+home directory.
+.PP
+When no longer needed, the caller shall manually
+deallocate all elements in
+.IR *contactsp ,
+using the
+.BR libcontacts_contact_destroy (3)
+and
+.BR free (3)
+functions, along with
+.I *contactsp
+itself, using the
+.BR free (3)
+function.
+
+.SH RETURN VALUE
+The
+.BR libcontacts_load_contacts ()
+function returns 0 upon successful completion;
+otherwise -1 is returned and
+.I errno
+is set appropriately to indicate the error.
+
+.SH ERRORS
+The
+.BR libcontacts_load_contacts ()
+function may fail for any reason specified for the
+.BR libcontacts_list_contacts (3),
+.BR libcontacts_load_contacts (3)
+(other than
+.I ENOENT
+and
+.IR EACCES ),
+and
+.BR calloc (3)
+functions.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7),
+.BR libcontacts_load_contact (3),
+.BR libcontacts_save_contact (3),
+.BR libcontacts_contact_destroy (3),
+.BR libcontacts_list_contacts (3)

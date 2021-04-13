@@ -1,0 +1,44 @@
+.TH LIBCONTACTS_CONTACT_DESTROY 3 LIBCONTACTS
+.SH NAME
+libcontacts_contact_destroy \- Deallocate memory for a contact entry
+.SH SYNOPSIS
+.nf
+#include <libcontacts.h>
+
+int libcontacts_contact_destroy(struct libcontacts_contact *\fIentry\fP);
+.fi
+.PP
+Link with
+.IR -lcontacts .
+
+.SH DESCRIPTION
+The
+.BR libcontacts_contact_destroy ()
+function deallocates the memory stored in
+.IR *entry ,
+including any subentries that are deallocatable
+with other functions provided by libcontacts.
+The caller must manually call
+.BR free (3)
+on the pointer
+.I entry
+afterwards if it a freeable pointer.
+
+.SH RETURN VALUE
+None.
+
+.SH ERRORS
+None.
+
+.SH SEE ALSO
+.BR libcontacts.h (0),
+.BR libcontacts (7),
+.BR libcontacts_address_destroy (3),
+.BR libcontacts_birthday_destroy (3),
+.BR libcontacts_block_destroy (3),
+.BR libcontacts_chat_destroy (3),
+.BR libcontacts_email_destroy (3),
+.BR libcontacts_number_destroy (3),
+.BR libcontacts_organisation_destroy (3),
+.BR libcontacts_pgpkey_destroy (3),
+.BR libcontacts_site_destroy (3)
