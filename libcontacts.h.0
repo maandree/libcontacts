@@ -69,8 +69,8 @@ This list is
 .IR NULL -terminated.
 .TP
 .BI "char **" groups
-List of groups the contact is a member of. For the
-special pseudocontact
+List of contact groups the contact is a member of.
+For the special pseudocontact
 .BR .nobody ,
 this list only contains groups that should be exist,
 but the contact should not be a member of them, allowing

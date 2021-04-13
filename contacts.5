@@ -1,0 +1,299 @@
+.TH CONTACTS 5 LIBCONTACTS
+.SH NAME
+contacts \- Simple and flexible contact information file format
+
+.SH DESCRIPTION
+The directory
+.I ~/.config/contacts
+is used to store files with contact information, one
+person per file, in the format specified by this document.
+File names that end with a tilde
+.RB ( ~ )
+are reserved for temporary storage while saving a file
+so that an already existing file (with the same name minus
+the tilde) is replaced before the new version is completed,
+and also so that other processes do not read incomplete files.
+File names that start with a dot
+.RB ( . )
+are reserved for special purpose entries.
+It is recommended that file names do not contain any other
+characters than lower case ASCII letters, ASCII digits and
+ASCII hyphen
+.RB ( - ).
+Subdirectories are prohibited.
+.PP
+The recommended default format for a file name is the
+name as the user prefers it to be displayed in the latin
+alphabet, in lower case with all non-letters (e.g. hyphens)
+removed, and spaces replaced with hyphens.
+.PP
+The currently defined special puporse entries are:
+.TP
+.B .me
+The user himself.
+.TP
+.B .nobody
+Unused data, such as created groups without any members.
+.PP
+The files in
+.I ~/.config/contacts
+are UTF-8 text files, meaning that they must not contain
+any NUL bytes and each line is terminated by a <newline>
+.RB ( \(aq\en\(aq ).
+.PP
+Each line in the file is a data entry and should begin
+with combination of printable ASCII characters, mostly
+upper case letters, called a tag, (non-standard entires
+should also begin with
+.BR X- ),
+followed by either a colon
+.RB ( : ),
+or a regular blank space (horizontal tab should also be
+tolerated) followed by the data for the entry. Some lines
+however are only flags and only contain the tag. Lines
+using the colon alternative must end with that colon,
+and subsequent lines starting a horizontal tab (one or more
+regular blank spaces and horizontal tabs should also be
+tolerated), until but excluding the subsequent first line
+that does not start this way, shall be considered subentries
+(this indentation is excluded in the description above, but
+is there for subentries, top-level entries are not
+indented). There is no prescribed order for entries.
+.PP
+Standard entires are, unless otherwise specified that
+must be specified multiple times.:
+.TP
+.B NAME
+The name of the contact as it should be displayed.
+May only be specified once.
+.TP
+.B FNAME
+The contact's given name.
+May only be specified once.
+.TP
+.B LNAME
+The contact's family name, if any.
+May only be specified once.
+.TP
+.B FLNAME
+The full name of the contact. There is no prescribed
+format, and there never will be. Application are advised
+not to presume any format. May only be specified once.
+.TP
+.B NICK
+The contact's nickname (once upon a time known as surname),
+if any. May only be specified once.
+.TP
+.B PHOTO
+Pathname to photo of the contact; should either be an
+absolute path or a path relative to the user's home
+directory.
+
+Applications may decide which photo to use based on
+their size, but user shall put the order of preference.
+
+For each telephone number, applications should only use
+photos that are shared exactly between the contacts that
+share that telephone number.
+.TP
+.B GROUP
+Contact group that the contact is a member of.
+
+For the special pseudocontact
+.BR .nobody ,
+it specified that the group shall exist, even if it may
+be empty.
+.TP
+.B NOTES
+Personal note about the contact.
+.TP
+.B BLOCK:
+Contact block information for the contact. Standard
+subentries are:
+.RS
+.TP
+.B SRV
+TODO
+.TP
+.B EXPLICIT
+TODO
+.TP
+.B ASK
+TODO
+.TP
+.B REMOVE
+TODO
+.TP
+.B OFF
+TODO
+.TP
+.B BUSY
+TODO
+.TP
+.B IGNORE
+TODO
+.RE
+.TP
+.B ORG:
+Organisation membership for the contact. Standard
+subentries are:
+.RS
+.TP
+.B ORG
+TODO
+.TP
+.B TITLE
+TODO
+.RE
+.TP
+.B EMAIL:
+E-mail address for the contact. Standard subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B ADDR
+TODO
+.RE
+.TP
+.B KEY:
+PGP-key for the contact. Standard subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B ID
+TODO
+.RE
+.TP
+.B PHONE:
+Telephone numbers for the contact. Standard subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B NUMBER
+TODO
+.TP
+.B MOBILE
+TODO
+.TP
+.B FAX
+TODO
+.PP
+Telephone numbers can be shared, in case of an incoming
+call where the phone number is shared, the application
+shall list contacts that telephone number.
+.RE
+.TP
+.B ADDR:
+Address (physical location) for the contact. Standard
+subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B COUNTRY
+TODO
+.TP
+.B C/O
+TODO
+.TP
+.B ADDR
+TODO
+.TP
+.B CODE
+TODO
+.TP
+.B CITY
+TODO
+.TP
+.B COORD
+TODO
+.RE
+.TP
+.B SITE:
+Internet sites (e.g. Web sites) that the contact own or
+has an account on. Standard subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B ADDR
+TODO
+.RE
+.TP
+.B CHAT:
+The contact's contact information for a services, like
+an instant messenging service. Standard subentries are:
+.RS
+.TP
+.B CTX
+TODO
+.TP
+.B SRV
+TODO
+.TP
+.B ADDR
+TODO
+.PP
+Entries shall be added by the applications that use the
+chat services.
+.RE
+.TP
+.B BIRTH:
+When the contact celebrates his birthday. Standard
+subentries are:
+.RS
+.TP
+.B YEAR
+TODO
+.TP
+.B MONTH
+TODO
+.TP
+.B DAY
+TODO
+.TP
+.B EARLY
+TODO
+.PP
+May only be specified once.
+.RE
+.TP
+.B ICE
+Whether the contact shall be listed as an In Case of Emergency
+(ICE) contact that can be view without unlocking the phone.
+No data may be added to this entry. May only be specified once.
+.TP
+.B NPERSON
+The contact is not a person, it may be for example be a
+company or the voice-mail inbox service. No data may be
+added to this entry. May only be specified once and cannot
+be combined with
+.B MALE
+or
+.BR FEMALE .
+.TP
+.B MALE
+The contact is a male. No data may be added to this entry.
+May only be specified once and cannot be combined with
+.B NPERSON
+or
+.BR FEMALE .
+.TP
+.B FEMALE
+The contact is a female. No data may be added to this entry.
+May only be specified once and cannot be combined with
+.B NPERSON
+or
+.BR MALE .
+
+.SH SEE ALSO
+.BR libcontacts (7),
+.BR libcontacts.h (0)
