@@ -71,7 +71,7 @@ test: test.o libcontacts.a
 
 check: test
 	@rm -rf -- .testdir
-	./test
+	$(CHECK_PREFIX) ./test
 	@rm -rf -- .testdir
 
 install: libcontacts.a libcontacts.$(LIBEXT)
