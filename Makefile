@@ -58,7 +58,7 @@ libcontacts.a: $(OBJ)
 	$(AR) -s $@
 
 libcontacts.$(LIBEXT): $(LOBJ)
-	$(CC) $(LIBFLAGS) $(LDFLAGS_METHODS) -o $@ $(LOBJ) $(LDFLAGS)
+	$(CC) $(LIBFLAGS) -o $@ $(LOBJ) $(LDFLAGS)
 
 .c.o:
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
