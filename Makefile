@@ -1,10 +1,5 @@
 .POSIX:
 
-LIB_MAJOR = 1
-LIB_MINOR = 0
-LIB_VERSION = $(LIB_MAJOR).$(LIB_MINOR)
-
-
 CONFIGFILE = config.mk
 include $(CONFIGFILE)
 
@@ -14,6 +9,10 @@ OS = linux
 # Windows: windows
 include mk/$(OS).mk
 
+
+LIB_MAJOR = 1
+LIB_MINOR = 0
+LIB_VERSION = $(LIB_MAJOR).$(LIB_MINOR)
 
 
 OBJ =\
@@ -84,6 +83,7 @@ install: libcontacts.a libcontacts.$(LIBEXT)
 	cp -- libcontacts.a "$(DESTDIR)$(PREFIX)/lib/"
 	cp -- libcontacts.h "$(DESTDIR)$(PREFIX)/include/"
 	cp -- libcontacts.$(LIBEXT) "$(DESTDIR)$(PREFIX)/lib/libcontacts.$(LIBMINOREXT)"
+	$(FIX_INSTALL_NAME) "$(DESTDIR)$(PREFIX)/lib/libcontacts.$(LIBMINOREXT)"
 	ln -sf -- libcontacts.$(LIBMINOREXT) "$(DESTDIR)$(PREFIX)/lib/libcontacts.$(LIBMAJOREXT)"
 	ln -sf -- libcontacts.$(LIBMAJOREXT) "$(DESTDIR)$(PREFIX)/lib/libcontacts.$(LIBEXT)"
 	cp -- $(MAN0) "$(DESTDIR)$(MANPREFIX)/man0/"
