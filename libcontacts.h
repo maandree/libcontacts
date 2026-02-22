@@ -1,4 +1,4 @@
-/* See LICENSE file for copyright and license details. */
+/* See LICENSE file for copyright and licence details. */
 #ifndef LIBCONTACTS_H
 #define LIBCONTACTS_H
 
@@ -46,13 +46,13 @@ struct libcontacts_address {
  * Birthday of contact
  */
 struct libcontacts_birthday {
-	unsigned int year;        /* asis,        0 for unknown */
-	unsigned char month;      /* january = 1, 0 for unknown */
-	unsigned char day;        /* asis,        0 for unknown */
+	unsigned year;            /* As is,        0 for unknown */
+	unsigned char month;      /* January = 1,  0 for unknown */
+	unsigned char day;        /* As is,        0 for unknown */
 
 	/**
 	 * This is applicable only if the birthday
-	 * is on a leap day. One non-leap years, a
+	 * is on a leap day. On non-leap years, a
 	 * birthday that occurs on a leap day is
 	 * observed the day after the leap day had
 	 * it existed; but if this flag is set, the
@@ -83,7 +83,7 @@ struct libcontacts_birthday {
 struct libcontacts_block {
 	/**
 	 * The service the block is applied to,
-	 * must be begin with a dot, except if
+	 * must begin with a dot, except if
 	 * it is:
 	 * - ".call"    Telephone calls
 	 * - ".sms"     SMS, MMS, and similar
@@ -131,8 +131,8 @@ struct libcontacts_number {
  * Organisation information for contact
  */
 struct libcontacts_organisation {
-	char *organisation;       /* Orginisation the contact belongs to */
-	char *title;              /* The contact's title/role in the orginisation */
+	char *organisation;       /* Organisation the contact belongs to */
+	char *title;              /* The contact's title/role in the organisation */
 	char **unrecognised_data; /* Data not recognised by the library */
 };
 
@@ -274,7 +274,7 @@ struct libcontacts_contact {
 	/**
 	 * Whether the contact shall be listed as an ICE
 	 * (In Case of Emergency) contact that can be
-	 * view without unlocking the phone
+	 * viewed without unlocking the phone
 	 */
 	int in_case_of_emergency;
 

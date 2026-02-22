@@ -131,7 +131,7 @@ When the contact celebrates his birthday.
 .BI "int " in_case_of_emergency
 Whether the contact shall be listed as an
 In Case of Emergency (ICE) contact that can be
-view without unlocking the phone.
+viewed without unlocking the phone.
 .TP
 .BI "enum libcontacts_gender " gender
 The gender of the contact. This lets applications select
@@ -507,7 +507,7 @@ Deallocate memory for a contact telephone number entry.
 .BR libcontacts_organisation_destroy (3)
 Deallocate memory for a contact organisation membership entry.
 .TP
-.BR libcontacts_pgp_destroy (3)
+.BR libcontacts_pgpkey_destroy (3)
 Deallocate memory for a contact PGP-key fingerprint entry.
 .TP
 .BR libcontacts_site_destroy (3)
