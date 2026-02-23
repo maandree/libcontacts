@@ -2,6 +2,10 @@
 #include "common.h"
 #include <stdarg.h>
 
+#if defined(__GNUC__)
+# pragma GCC diagnostic ignored "-Wunsuffixed-float-constants"
+#endif
+
 
 #define TEST(EXPR)\
 	do {\
@@ -113,6 +117,11 @@ main(void)
 	struct passwd user;
 	char *s, **ids;
 
+#if defined(__GNUC__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
+#endif
+
 	TEST(libcontacts_get_path("", NULL) == NULL && errno == EINVAL);
 	memset(&user, 0, sizeof(user));
 	TEST(libcontacts_get_path("", &user) == NULL && errno == EINVAL);
@@ -131,6 +140,10 @@ main(void)
 	TEST(!mkdir(".testdir", 0700));
 	TEST(!mkdir(".testdir/.config", 0700));
 	TEST(!mkdir(".testdir/.config/contacts", 0700));
+
+#if defined(__GNUC__)
+# pragma GCC diagnostic pop
+#endif
 
 	touch(".testdir/.config/contacts/alpha");
 	touch(".testdir/.config/contacts/.me");
